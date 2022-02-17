@@ -1,0 +1,32 @@
+{
+    "config": {
+      "abort": {
+        "already_configured": "The entered postal code is already configured."
+      },
+      "step": {
+        "user": {
+          "data": {
+            "postalcode": "Postal Code",
+            "postnord": "Enable Postnord check",
+            "cotymail": "Enable Citymail check"
+          },
+          "title": "Swedish Mail Delivery"
+        }
+      }
+    },
+    "options": {
+      "abort": {
+        "already_configured": "The entered postal code is already configured."
+      },
+      "step": {
+        "user": {
+          "data": {
+            "postnord": "Enable Postnord check",
+            "cotymail": "Enable Citymail check"
+          },
+          "title": "Swedish Mail Delivery"
+        }
+      }
+    }
+
+  }

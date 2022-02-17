@@ -1,0 +1,10 @@
+{
+  "name": "Svensk Postutdelning",
+  "content_in_root": false,
+  "country": "SE",
+  "render_readme": false,
+  "homeassistant": "2021.12.0",
+  "zip_release": false,
+  "domains": ["sensor"],
+  "iot_class": "cloud_poll"
+}
