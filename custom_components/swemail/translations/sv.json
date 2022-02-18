@@ -1,5 +1,6 @@
 {
-    "config": {
+  "title": "Svensk Postutdelning",
+  "config": {
       "abort": {
         "already_configured": "Det angivna postnummret finns redan"
       },

@@ -1,0 +1,38 @@
+{
+  "state": {
+    "swemail__deliverysensor": {
+      "0": "Idag",
+      "1": "I morgon",
+      "2": "I övermorgon",
+      "3": "Om tre dagar",
+      "4": "Om fyra dagar",
+      "5": "Om fem dagar",
+      "6": "Om sex dagar",
+      "7": "Om en vecka",
+      "8": "Om 8 dagar",
+      "9": "Om 9 dagar",
+      "10": "Om 10 dagar",
+      "11": "Om 11 dagar",
+      "12": "Om 12 dagar",
+      "13": "Om 13 dagar",
+      "14": "Om två veckor"
+    },
+    "swemail__providersensor": {
+      "0": "Idag",
+      "1": "I morgon",
+      "2": "I övermorgon",
+      "3": "Om tre dagar",
+      "4": "Om fyra dagar",
+      "5": "Om fem dagar",
+      "6": "Om sex dagar",
+      "7": "Om en vecka",
+      "8": "Om 8 dagar",
+      "9": "Om 9 dagar",
+      "10": "Om 10 dagar",
+      "11": "Om 11 dagar",
+      "12": "Om 12 dagar",
+      "13": "Om 13 dagar",
+      "14": "Om två veckor"
+    }
+  }
+}
