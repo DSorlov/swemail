@@ -2,7 +2,7 @@
 
 ## Supported Versions
 
-We activly support version 1 and above.
+I activly support version 1 and above.
 
 | Version | Supported          |
 | ------- | ------------------ |

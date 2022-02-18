@@ -1,7 +1,7 @@
 """Constants for the component."""
 
 # Component domain, used to store component data in hass data.
-__version__ = "1.0.0"
+__version__ = "1.0.1"
 VERSION = __version__
 DOMAIN = "swemail"
 
