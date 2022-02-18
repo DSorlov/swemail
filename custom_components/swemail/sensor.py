@@ -22,10 +22,10 @@ async def async_setup_entry(hass, config_entry, async_add_entities):
     worker = hass.data[DOMAIN].worker
     entities = []
 
-    if (config_entry.options.get(CONF_PROVIDER_POSTNORD)):
+    if (config_entry.data.get(CONF_PROVIDER_POSTNORD)):
         entities.append(ProviderMailDeliverySensor(hass, worker, config_entry.data, CONF_PROVIDER_POSTNORD))
 
-    if (config_entry.options.get(CONF_PROVIDER_CITYMAIL)):
+    if (config_entry.data.get(CONF_PROVIDER_CITYMAIL)):
         entities.append(ProviderMailDeliverySensor(hass, worker, config_entry.data, CONF_PROVIDER_CITYMAIL))
 
     entities.append(NextMailDeliverySensor(hass, worker, config_entry.data))
@@ -64,21 +64,22 @@ class ProviderMailDeliverySensor(SensorEntity):
         provider = self._provider
 
         if (provider in self._worker.data and self._postalcode in self._worker.data[provider]):
-            attributes['next_delivery']= self._worker.data[provider][self._postalcode]['next_delivery']
+            nextDelivery = self._worker.data[provider][self._postalcode]['next_delivery']
+            nextDate = datetime.strptime(nextDelivery, "%Y-%m-%d")
+            numDays = (nextDate - datetime.now()).days+1
+
             attributes['last_update']= self._worker.data[provider][self._postalcode]['last_update']
             attributes['postal_city']= self._worker.data[provider][self._postalcode]['postal_city']
             attributes['logo'] = f"https://logo.clearbit.com/{provider}.se"
-            nextDate = datetime.strptime(self._worker.data[provider][self._postalcode]['next_delivery'], "%Y-%m-%d")
-            numdays = (nextDate - datetime.now()).days+1
-            if (numdays<0):
-                self._value = 0
-            else:
-                self._value = numdays
+            attributes['next_delivery'] = nextDelivery
+            attributes['days_left'] = numDays
+            self._value = numDays
         else:
-            attributes['next_delivery'] = ''
             attributes['last_update'] = ''
             attributes['postal_city'] = ''
             attributes['logo'] = ''
+            attributes['next_delivery'] = ''
+            attributes['days_left'] = ''
             self._value = None
     
         attributes['provider']= provider
@@ -96,6 +97,11 @@ class ProviderMailDeliverySensor(SensorEntity):
     def native_value(self):
         """Return the value of the entity."""
         return self._value
+
+    @property
+    def device_class(self):
+        """Return the class of this device."""
+        return f"{DOMAIN}__providersensor"        
 
 
 
@@ -139,35 +145,40 @@ class NextMailDeliverySensor(SensorEntity):
 
         for provider in self._providers:
             if (provider in self._worker.data and self._postalcode in self._worker.data[provider]):
-                attributes[provider] = {}
-                attributes[provider]['next_delivery']= self._worker.data[provider][self._postalcode]['next_delivery']
-                attributes[provider]['last_update']= self._worker.data[provider][self._postalcode]['last_update']
-                attributes[provider]['postal_city']= self._worker.data[provider][self._postalcode]['postal_city']
+                nextDelivery = self._worker.data[provider][self._postalcode]['next_delivery']
+                newDate = datetime.strptime(nextDelivery, "%Y-%m-%d")
+                numDays = (newDate - datetime.now()).days+1
 
-                newDate = datetime.strptime(attributes[provider]['next_delivery'], "%Y-%m-%d")
+                attributes[provider+'_last_update']= self._worker.data[provider][self._postalcode]['last_update']
+                attributes[provider+'_postal_city']= self._worker.data[provider][self._postalcode]['postal_city']
+                attributes[provider+'_next_delivery']= nextDelivery
+                attributes[provider+'_days_left'] = numDays
+                attributes[provider+'_logo'] = f"https://logo.clearbit.com/{provider}.se"
+
                 if (bestDate is None or newDate < bestDate):
                     bestDate = newDate
                     bestProvider = provider
+                    self._value = numDays
 
             else:
-                attributes[provider] = {}
-                attributes[provider]['next_delivery'] = ''
-                attributes[provider]['last_update'] = ''
-                attributes[provider]['postal_city'] = ''
+                attributes[provider+'_last_update'] = ''
+                attributes[provider+'_postal_city'] = ''
+                attributes[provider+'_next_delivery'] = ''
+                attributes[provider+'_days_left'] = ''
+                attributes[provider+'_logo'] = f"https://logo.clearbit.com/{provider}.se"
 
-    
-        if (not bestDate is None):
-            attributes['next_provider'] = bestProvider.capitalize()
-            attributes['next_logo'] = f"https://logo.clearbit.com/{bestProvider}.se"
-            attributes['next_date'] = bestDate.strftime("%Y-%m-%d")
-            numdays = (bestDate - datetime.now()).days
-            if (numdays<0):
-                self._value = 0
-        else:
+        _LOGGER.error(f"value = {self._value}")
+
+        if (self._value is None):
             attributes['next_provider'] = ''
             attributes['next_logo'] = ''
-            attributes['next_date'] = ''
-            self._value = None
+            attributes['next_delivery'] = ''
+            attributes['next_days_left'] = ''
+        else:
+            attributes['next_provider'] = bestProvider.capitalize()
+            attributes['next_logo'] = f"https://logo.clearbit.com/{bestProvider}.se"
+            attributes['next_delivery'] = attributes[bestProvider+'_next_delivery']
+            attributes['next_days_left'] = attributes[bestProvider+'_days_left']
 
         attributes['postal_code']= self._postalcode
         self._attr_extra_state_attributes = attributes
@@ -183,3 +194,9 @@ class NextMailDeliverySensor(SensorEntity):
     def native_value(self):
         """Return the value of the entity."""
         return self._value
+
+    @property
+    def device_class(self):
+        """Return the class of this device."""
+        return f"{DOMAIN}__deliverysensor"        
+
