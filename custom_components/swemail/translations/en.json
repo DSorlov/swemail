@@ -9,7 +9,7 @@
           "data": {
             "postalcode": "Postal Code",
             "postnord": "Enable Postnord check",
-            "cotymail": "Enable Citymail check"
+            "citymail": "Enable Citymail check"
           },
           "title": "Swedish Mail Delivery"
         }
@@ -23,7 +23,7 @@
         "user": {
           "data": {
             "postnord": "Enable Postnord check",
-            "cotymail": "Enable Citymail check"
+            "citymail": "Enable Citymail check"
           },
           "title": "Swedish Mail Delivery"
         }
