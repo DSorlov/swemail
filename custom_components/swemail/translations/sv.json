@@ -4,6 +4,10 @@
       "abort": {
         "already_configured": "Det angivna postnummret finns redan"
       },
+      "error": {
+        "invalid_postcode": "Det angivna postnummret är ogilltigt",
+        "creation_error": "Ett internt fel uppstod vid skapandet av konfigurationsobjektet"
+      },
       "step": {
         "user": {
           "data": {

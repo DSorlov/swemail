@@ -4,6 +4,10 @@
       "abort": {
         "already_configured": "The entered postal code is already configured."
       },
+      "error": {
+        "invalid_postcode": "The entered postcode is not valid",
+        "creation_error": "An error occured while creating configuration object"
+      },
       "step": {
         "user": {
           "data": {

@@ -12,6 +12,7 @@ DEVICE_AUTHOR = "Daniel Sörlöv"
 DEVICE_VERSION = __version__
 
 CONF_POSTALCODE = "postalcode"
+CONF_TITLE = "title"
 
 CONF_PROVIDER_POSTNORD = "postnord"
 CONF_PROVIDER_CITYMAIL = "citymail"

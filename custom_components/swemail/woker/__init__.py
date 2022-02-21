@@ -1,7 +1,10 @@
 import logging
+from pydoc import resolve
 import re
 from datetime import datetime
 import html
+import aiohttp
+import asyncio
 import requests
 
 from ..const import CONF_PROVIDER_CITYMAIL, CONF_PROVIDER_POSTNORD
@@ -60,6 +63,16 @@ class HttpWorker:
     def data(self):
         return self._data
 
+    async def _fetch_data_async(self, url, datatype):
+        async with aiohttp.ClientSession() as session:
+            async with session.get(url) as resp:
+                if (datatype=='json'):
+                    result = await resp.json()
+                else:
+                    result = await resp.text()
+
+                return result
+
     def _fetch_data(self, url):
         r = requests.get(url)
         r.raise_for_status()
@@ -101,6 +114,10 @@ class HttpWorker:
                 }
 
 
+    async def fetchPostalCity(self, postalcode):
+            data = await self._fetch_data_async(self._URL[CONF_PROVIDER_POSTNORD].format(postalcode),'json')
+            return data["city"].capitalize()
+
     def fetch(self,postalcode,provider):
         data = self._fetch_data(self._URL[provider].format(postalcode))
 
@@ -109,4 +126,3 @@ class HttpWorker:
 
         if (provider==CONF_PROVIDER_CITYMAIL):
             self._handle_cm_data(data.text,postalcode)
-
