@@ -167,8 +167,6 @@ class NextMailDeliverySensor(SensorEntity):
                 attributes[provider+'_days_left'] = ''
                 attributes[provider+'_logo'] = f"https://logo.clearbit.com/{provider}.se"
 
-        _LOGGER.error(f"value = {self._value}")
-
         if (self._value is None):
             attributes['next_provider'] = ''
             attributes['next_logo'] = ''
