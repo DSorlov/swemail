@@ -11,3 +11,5 @@ A small and simple integration to provide information about delivery days for Po
 * Goto Integrations and add Svensk Postutdelning or Swedish Mail Delivery (depending on language)
 * Enter postal code and select your providers
 * Sensors are created and updated. Enjoy!
+  - One sensor for each selected provider
+  - An additional combined sensor regardless of provider
