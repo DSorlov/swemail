@@ -68,6 +68,12 @@ class ProviderMailDeliverySensor(SensorEntity):
             nextDate = datetime.strptime(nextDelivery, "%Y-%m-%d")
             numDays = (nextDate - datetime.now()).days+1
 
+            ## FIXME?
+            ## Perhaps we could fix this in a better way. When -1 it means that we have passed midnight but the data
+            ## in the cache still have not refreshed so the calculation fails. For now just resort to keep today until
+            ## it refreshes. This can only affect during one hour after midnight every day so no bigger issue?
+            numDays = 0 if numDays < 0 else numDays
+
             attributes['last_update']= self._worker.data[provider][self._postalcode]['last_update']
             attributes['postal_city']= self._worker.data[provider][self._postalcode]['postal_city']
             attributes['logo'] = f"https://logo.clearbit.com/{provider}.se"
@@ -148,6 +154,12 @@ class NextMailDeliverySensor(SensorEntity):
                 nextDelivery = self._worker.data[provider][self._postalcode]['next_delivery']
                 newDate = datetime.strptime(nextDelivery, "%Y-%m-%d")
                 numDays = (newDate - datetime.now()).days+1
+
+                ## FIXME?
+                ## Perhaps we could fix this in a better way. When -1 it means that we have passed midnight but the data
+                ## in the cache still have not refreshed so the calculation fails. For now just resort to keep today until
+                ## it refreshes. This can only affect during one hour after midnight every day so no bigger issue?
+                numDays = 0 if numDays < 0 else numDays
 
                 attributes[provider+'_last_update']= self._worker.data[provider][self._postalcode]['last_update']
                 attributes[provider+'_postal_city']= self._worker.data[provider][self._postalcode]['postal_city']

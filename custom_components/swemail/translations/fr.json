@@ -1,0 +1,36 @@
+{
+    "title": "Livraison de la poste suédoise",
+    "config": {
+      "abort": {
+        "already_configured": "Le code postal spécifié est déjà configuré."
+      },
+      "error": {
+        "invalid_postcode": "Le code postal spécifié est incorrect.",
+        "creation_error": "Une erreur s'est produite lors de la création de l'object de configuration."
+      },
+      "step": {
+        "user": {
+          "data": {
+            "postalcode": "Code Postal",
+            "postnord": "Activer le contrôle chez Postnord",
+            "citymail": "Activer le contrôle chez Citymail"
+          },
+          "title": "Livraison de la poste suédoise"
+        }
+      }
+    },
+    "options": {
+      "abort": {
+        "already_configured": "Le code postal spécifié est déjà configuré."
+      },
+      "step": {
+        "user": {
+          "data": {
+            "postnord": "Activer le contrôle chez Postnord",
+            "citymail": "Activer le contrôle chez Citymail"
+          },
+          "title": "Livraison de la poste suédoise"
+        }
+      }
+    }
+  }
