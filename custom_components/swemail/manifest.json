@@ -7,6 +7,6 @@
   "issue_tracker": "https://github.com/dsorlov/swemail/issues",
   "codeowners": ["@dsorlov"],
   "iot_class": "cloud_polling",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "quality_scale": "silver"
 }
