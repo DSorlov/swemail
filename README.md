@@ -14,6 +14,11 @@ A small and simple integration to provide information about delivery days for Po
 ## Install using HACS
 
 * If you haven't already you must have [HACS installed](https://hacs.xyz/docs/setup/download).
+
+You could use this button:
+[![Open your Home Assistant instance and open a repository inside the Home Assistant Community Store.](https://my.home-assistant.io/badges/hacs_repository.svg)](https://my.home-assistant.io/redirect/hacs_repository/?owner=DSorlov&repository=swemail&category=integration)
+
+_OR_
 * Go into HACS and search for Svensk Postutdelning under the Integrations headline. Install it. You will need to restart Home Assistant to finish the process.
 * Once that is done, try to reload your GUI (caching issues could prevent the integration to be shown).
 * Goto Integrations and add Svensk Postutdelning or Swedish Mail Delivery (depending on language)
