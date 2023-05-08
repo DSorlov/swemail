@@ -32,5 +32,28 @@
           "title": "Livraison de la poste suédoise"
         }
       }
+    },
+    "entity": {
+      "sensor": {
+        "maildaysleft": {
+          "state": {
+            "0": "Aujourd'hui",
+            "1": "Demain",
+            "2": "Dans 2 jours",
+            "3": "Dans 3 jours",
+            "4": "Dans 4 jours",
+            "5": "Dans 5 jours",
+            "6": "Dans 6 jours",
+            "7": "Dans 1 semaine",
+            "8": "Dans 8 jours",
+            "9": "Dans 9 jours",
+            "10": "Dans 10 jours",
+            "11": "Dans 11 jours",
+            "12": "Dans 12 jours",
+            "13": "Dans 13 jours",
+            "14": "Dans 2 semaines"
+          }
+        }
+      }
     }
   }
