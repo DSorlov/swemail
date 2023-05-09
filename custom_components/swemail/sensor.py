@@ -48,6 +48,7 @@ class ProviderMailDeliverySensor(SensorEntity):
         self._attr_unique_id = f"{DOMAIN}_{self._postalcode}_{self._provider}"
         self._attr_name = f"{self._provider.capitalize()} {SENSOR_NAME} {self._postalcode}"
         self._attr_icon = "mdi:email-fast-outline"
+        self._attr_translation_key = "maildaysleft"
         self._attr_device_info = {
             ATTR_IDENTIFIERS: {(DOMAIN, DEVICE_NAME)},
             ATTR_NAME: DEVICE_NAME,
@@ -130,6 +131,7 @@ class NextMailDeliverySensor(SensorEntity):
         self._attr_unique_id = f"{DOMAIN}_{self._postalcode}"
         self._attr_name = f"Mail {SENSOR_NAME} {self._postalcode}"
         self._attr_icon = "mdi:email-fast-outline"
+        self._attr_translation_key = "maildaysleft"
         self._attr_device_info = {
             ATTR_IDENTIFIERS: {(DOMAIN, DEVICE_NAME)},
             ATTR_NAME: DEVICE_NAME,
