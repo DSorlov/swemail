@@ -2,10 +2,10 @@
   "title": "Svensk Postutdelning",
   "config": {
       "abort": {
-        "already_configured": "Det angivna postnummret finns redan"
+        "already_configured": "Det angivna postnumret finns redan"
       },
       "error": {
-        "invalid_postcode": "Det angivna postnummret är ogilltigt",
+        "invalid_postcode": "Det angivna postnumret är ogiltigt",
         "creation_error": "Ett internt fel uppstod vid skapandet av konfigurationsobjektet"
       },
       "step": {
@@ -21,7 +21,7 @@
     },
     "options": {
       "abort": {
-        "already_configured": "Det angivna postnummret finns redan"
+        "already_configured": "Det angivna postnumret finns redan"
       },
       "step": {
         "user": {
