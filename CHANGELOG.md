@@ -7,8 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [1.0.6] (2023-05-19)
 
 ### Fixes
-- Fixed [#19](https://github.com/DSorlov/swemail/issues/19) 
-- Fixed [#20](https://github.com/DSorlov/swemail/issues/20)
+- Fixed [#19](https://github.com/DSorlov/swemail/issues/19) and [#22](https://github.com/DSorlov/swemail/issues/22) Translation file updated format. Thanks @angarok
+- Fixed [#21](https://github.com/DSorlov/swemail/issues/21) Grammar and spelling. Thanks @thulin82
 
 
 ## [1.0.5] (2023-02-09)
