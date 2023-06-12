@@ -17,7 +17,6 @@ _LOGGER = logging.getLogger(__name__)
 
 PLATFORMS = ["sensor"]
 
-@asyncio.coroutine
 async def async_setup(hass, config):
     """Set up HASL integration"""
     
