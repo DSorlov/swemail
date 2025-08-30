@@ -76,10 +76,6 @@ class SweMailDeliveryConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
 class SweMailDeliveryOptionsFlow(config_entries.OptionsFlow):
     """HASL config flow options handler."""
 
-    def __init__(self, config_entry):
-        """Initialize HASL options flow."""
-        self.config_entry = config_entry
-
     async def async_step_init(self, user_input=None):
         """Manage the options."""
         return await self.async_step_user(user_input)
