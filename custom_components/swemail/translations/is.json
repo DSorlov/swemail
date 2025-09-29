@@ -1,0 +1,60 @@
+{
+"title": "Sænsk póstþjónusta",
+"config": {
+"abort": {
+"already_configured": "Póstnúmerið sem slegið var inn er þegar stillt"
+},
+"error": {
+"invalid_postcode": "Póstnúmerið sem slegið var inn er ekki gilt",
+"creation_error": "Villa kom upp við að búa til stillingahlut."
+},
+"step": {
+"user": {
+"data": {
+"postalcode": "Póstnúmer",
+"postnord": "Virkja Postnord athugun",
+"citymail": "Virkja Citymail athugun"
+},
+"title": "Sænsk Póstsending"
+}
+}
+},
+"options": {
+"abort": {
+"already_configured": "Póstnúmerið sem slegið var inn er þegar stillt"
+},
+"step": {
+"user": {
+"data": {
+"postnord": "Virkja Postnord athugun",
+"citymail": "Virkja Citymail athugun"
+},
+"title": "Sænsk póstþjónusta"
+}
+}
+},
+"entity": {
+"sensor": {
+"maildaysleft": {
+"state": {
+"0": "Í dag",
+"1": "Á morgun",
+"2": "Eftir tvo daga",
+"3": "Eftir þrjá daga",
+"4": "Eftir fjóra daga",
+"5": "Eftir fimm daga",
+"6": "Eftir sex daga",
+"7": "Eftir viku",
+"8": "Eftir átta daga",
+"9": "Eftir níu daga",
+"10": "Eftir tíu daga",
+"11": "Eftir ellefu daga",
+"12": "Eftir tólf daga",
+"13": "Eftir þrettán daga",
+"14": "Eftir tvær vikur"
+}
+}
+}
+}
+}
+
