@@ -2,13 +2,8 @@ import logging
 from datetime import datetime
 from typing import Any, Dict, Optional
 
-from homeassistant.components.sensor import (
-    SensorDeviceClass,
-    SensorEntity,
-    SensorStateClass,
-)
+from homeassistant.components.sensor import SensorEntity
 from homeassistant.config_entries import ConfigEntry
-from homeassistant.const import UnitOfTime
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.device_registry import DeviceEntryType
 from homeassistant.helpers.entity import DeviceInfo
@@ -98,7 +93,6 @@ class ProviderMailDeliverySensor(CoordinatorEntity, SensorEntity):
         attributes = {
             "provider": self._provider,
             "postal_code": self.coordinator.postal_code,
-            "logo": f"/local/swemail/{self._provider}.png",
         }
 
         if not self.coordinator.data or self._provider not in self.coordinator.data:
@@ -140,9 +134,6 @@ class ProviderMailDeliverySensor(CoordinatorEntity, SensorEntity):
 class NextMailDeliverySensor(CoordinatorEntity, SensorEntity):
     """Combined mail delivery sensor showing next delivery from all providers."""
 
-    _attr_state_class = SensorStateClass.MEASUREMENT
-    _attr_native_unit_of_measurement = UnitOfTime.DAYS
-    _attr_device_class = SensorDeviceClass.DURATION
     _attr_icon = "mdi:email-fast-outline"
     _attr_translation_key = "maildaysleft"
 
@@ -220,7 +211,6 @@ class NextMailDeliverySensor(CoordinatorEntity, SensorEntity):
                         f"{prefix}postal_city": "",
                         f"{prefix}next_delivery": "",
                         f"{prefix}days_left": "",
-                        f"{prefix}logo": f"/local/swemail/{provider}.png",
                     }
                 )
                 continue
@@ -244,7 +234,6 @@ class NextMailDeliverySensor(CoordinatorEntity, SensorEntity):
                             f"{prefix}postal_city": postal_data.get("postal_city", ""),
                             f"{prefix}next_delivery": next_delivery,
                             f"{prefix}days_left": num_days,
-                            f"{prefix}logo": f"/local/swemail/{provider}.png",
                         }
                     )
                 else:
@@ -254,7 +243,6 @@ class NextMailDeliverySensor(CoordinatorEntity, SensorEntity):
                             f"{prefix}postal_city": "",
                             f"{prefix}next_delivery": "",
                             f"{prefix}days_left": "",
-                            f"{prefix}logo": f"/local/swemail/{provider}.png",
                         }
                     )
             except (ValueError, KeyError):
@@ -264,7 +252,6 @@ class NextMailDeliverySensor(CoordinatorEntity, SensorEntity):
                         f"{prefix}postal_city": "",
                         f"{prefix}next_delivery": "",
                         f"{prefix}days_left": "",
-                        f"{prefix}logo": f"/local/swemail/{provider}.png",
                     }
                 )
 
@@ -273,7 +260,6 @@ class NextMailDeliverySensor(CoordinatorEntity, SensorEntity):
             attributes.update(
                 {
                     "next_provider": best_provider.capitalize(),
-                    "next_logo": f"/local/swemail/{best_provider}.png",
                     "next_delivery": attributes[f"{best_provider}_next_delivery"],
                     "next_days_left": attributes[f"{best_provider}_days_left"],
                 }
@@ -282,7 +268,6 @@ class NextMailDeliverySensor(CoordinatorEntity, SensorEntity):
             attributes.update(
                 {
                     "next_provider": "",
-                    "next_logo": "",
                     "next_delivery": "",
                     "next_days_left": "",
                 }

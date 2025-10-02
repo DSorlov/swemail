@@ -14,7 +14,6 @@ Removing Clearbit dependency and improvements in blocking http io operations.
 
 ### Changed
 - Replaced requests with aiohttp - Eliminated blocking I/O operations
-- Updated static path registration - Uses modern StaticPathConfig with async_register_static_paths API
 - Improved device info - Better device registry integration
 - Enhanced attribute management - More efficient and reliable state updates
 - Better date handling - Fixed midnight edge case calculations
@@ -26,7 +25,7 @@ Removing Clearbit dependency and improvements in blocking http io operations.
 - Upgrade compatibility: Added proper migration from v1.x installations
 
 ### Removed
-- Clearbit API calls - Now uses local PNG files for logos
+- Clearbit API calls - no logo is available because it simply is not an asked for feature
 - Duration device class - Allows custom translations to work properly
 
 ### Performance Improvements

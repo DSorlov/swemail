@@ -6,7 +6,6 @@ import os
 from datetime import timedelta
 
 import voluptuous as vol
-from homeassistant.components.http import StaticPathConfig
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant, callback
 from homeassistant.exceptions import ConfigEntryNotReady
@@ -56,12 +55,6 @@ class SweMailCoordinator(DataUpdateCoordinator):
 async def async_setup(hass, config):
     """Set up HASL integration"""
 
-    # Register static files for logos
-    integration_dir = os.path.dirname(__file__)
-    await hass.http.async_register_static_paths([
-        StaticPathConfig(f"/local/{DOMAIN}", integration_dir, cache_headers=True)
-    ])
-
     # SERVICE FUNCTIONS
     async def fetch_data(call):
         """Service to manually refresh data for all coordinators."""
@@ -86,12 +79,12 @@ async def reload_entry(hass, entry):
 
 async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     """Set up component from a config entry."""
-    
+
     # Migration from v1.x to v2.x - ensure clean upgrade
     if entry.version < 2:
         _LOGGER.info("Migrating config entry from version %s to 2", entry.version)
         hass.config_entries.async_update_entry(entry, version=2)
-    
+
     postal_code = entry.data[CONF_POSTALCODE]
     enabled_providers = [
         provider for provider in CONF_PROVIDERS if entry.data.get(provider, False)
