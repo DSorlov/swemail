@@ -57,8 +57,8 @@ async def async_setup(hass, config):
 
     # Register static files for logos
     integration_dir = os.path.dirname(__file__)
-    hass.http.register_static_path(
-        f"/local/{DOMAIN}", integration_dir, cache_headers=True
+    await hass.http.async_register_static_paths(
+        [{"path": f"/local/{DOMAIN}", "directory": integration_dir}]
     )
 
     # SERVICE FUNCTIONS
