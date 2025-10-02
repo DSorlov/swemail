@@ -1,13 +1,13 @@
-"""Component for wiffi support."""
+"""Swedish Mail Delivery Integration."""
 import logging
-from builtins import property
 from datetime import timedelta
 import asyncio
+import os
 
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant, callback
 from homeassistant.exceptions import ConfigEntryNotReady
-from homeassistant.helpers.event import async_track_time_interval
+from homeassistant.helpers.update_coordinator import DataUpdateCoordinator, UpdateFailed
 
 from .const import CONF_POSTALCODE, CONF_PROVIDERS, DOMAIN
 from .woker import HttpWorker
@@ -17,14 +17,52 @@ _LOGGER = logging.getLogger(__name__)
 
 PLATFORMS = ["sensor"]
 
+
+class SweMailCoordinator(DataUpdateCoordinator):
+    """Data coordinator for Swedish Mail delivery."""
+
+    def __init__(self, hass: HomeAssistant, postal_code: int, providers: list):
+        """Initialize coordinator."""
+        super().__init__(
+            hass,
+            _LOGGER,
+            name=DOMAIN,
+            update_interval=timedelta(hours=1),
+        )
+        self.postal_code = postal_code
+        self.providers = providers
+        self.worker = HttpWorker()
+
+    async def _async_update_data(self):
+        """Fetch data from API endpoints."""
+        try:
+            # Fetch data for all enabled providers concurrently
+            tasks = []
+            for provider in self.providers:
+                tasks.append(self.worker.fetch_async(self.postal_code, provider))
+            
+            await asyncio.gather(*tasks)
+            return self.worker.data
+        except Exception as err:
+            raise UpdateFailed(f"Error communicating with API: {err}") from err
+
 async def async_setup(hass, config):
     """Set up HASL integration"""
     
+    # Register static files for logos
+    integration_dir = os.path.dirname(__file__)
+    hass.http.register_static_path(
+        f"/local/{DOMAIN}",
+        integration_dir,
+        cache_headers=True
+    )
+    
     # SERVICE FUNCTIONS
-    @callback
-    async def fetch_data(crapdata):
-        await hass.async_add_executor_job(hass.data[DOMAIN]._fetch)
-        return True
+    async def fetch_data(call):
+        """Service to manually refresh data for all coordinators."""
+        if DOMAIN in hass.data:
+            for coordinator in hass.data[DOMAIN].values():
+                await coordinator.async_request_refresh()
 
     hass.services.async_register(DOMAIN, 'fetch_data', fetch_data)
 
@@ -39,18 +77,21 @@ async def reload_entry(hass, entry):
     await async_setup_entry(hass, entry)
 
 async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
-    """Set up component from a config entry, config_entry contains data from config entry database."""
-    # store worker object
-    if (DOMAIN in hass.data):
-        worker = hass.data[DOMAIN]
-    else:
-        worker = hass.data.setdefault(DOMAIN, SweMailDeliveryWorker(hass))
+    """Set up component from a config entry."""
+    postal_code = entry.data[CONF_POSTALCODE]
+    enabled_providers = [provider for provider in CONF_PROVIDERS if entry.data.get(provider, False)]
+    
+    # Create coordinator
+    coordinator = SweMailCoordinator(hass, postal_code, enabled_providers)
+    
+    # Store coordinator in hass.data
+    hass.data.setdefault(DOMAIN, {})
+    hass.data[DOMAIN][entry.entry_id] = coordinator
 
-    # add pollen region to worker
-    worker.add_entry(entry)
+    # Fetch initial data
+    await coordinator.async_config_entry_first_refresh()
 
     await hass.config_entries.async_forward_entry_setups(entry, PLATFORMS)
-    await hass.async_add_executor_job(worker._fetch)
 
     return True
 
@@ -59,68 +100,11 @@ async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry):
     """Unload a config entry."""
     unload_ok = await hass.config_entries.async_unload_platforms(entry, PLATFORMS)
     if unload_ok:
-        worker = hass.data[DOMAIN]
-        worker.remove_entry(entry)
-        if worker.is_idle():
-            # also remove worker if not used by any entry any more
+        # Remove coordinator from hass.data
+        hass.data[DOMAIN].pop(entry.entry_id)
+        if not hass.data[DOMAIN]:
             del hass.data[DOMAIN]
 
     return unload_ok
 
 
-class SweMailDeliveryWorker:
-    """worker object. Stored in hass.data."""
-
-    def __init__(self, hass: HomeAssistant):
-        """Initialize the instance."""
-        self._hass = hass
-        self._worker = HttpWorker()
-        self._fetch_callback_listener = None
-        self._postalcodes = {}
-
-    @property
-    def worker(self):
-        return self._worker
-
-    @property
-    def postalcodes(self):
-        return self._postalcodes
-
-    def add_entry(self, config_entry: ConfigEntry):
-        """Add entry."""
-        self._hass.bus.fire(f"{DOMAIN}_changed", {"action": "add", "postalcode": config_entry.data[CONF_POSTALCODE]})
-        if self.is_idle():
-            # This is the first entry, therefore start the timer
-            self._fetch_callback_listener = async_track_time_interval(
-                self._hass, self._fetch_callback, timedelta(minutes=60)
-            )
-
-        self._postalcodes[config_entry.data[CONF_POSTALCODE]] = config_entry
-
-    def remove_entry(self, config_entry: ConfigEntry):
-        """Remove entry."""
-        self._hass.bus.fire(f"{DOMAIN}_changed", {"action": "remove", "postalcode": config_entry.data[CONF_POSTALCODE]})
-        self._postalcodes.pop(config_entry.data[CONF_POSTALCODE])
-
-        if self.is_idle():
-            # This was the last region, therefore stop the timer
-            remove_listener = self._fetch_callback_listener
-            if remove_listener is not None:
-                remove_listener()
-
-    def is_idle(self) -> bool:
-        return not bool(self._postalcodes)
-
-    @callback
-    def _fetch_callback(self, *_):
-        self._hass.add_job(self._fetch)
-
-    def _fetch(self, *_):
-        for postalcode in self._postalcodes:
-            try:
-                for provider in CONF_PROVIDERS:
-                    if (self._postalcodes[postalcode].data[provider]):
-                        self._worker.fetch(postalcode,provider)
-                    self._hass.bus.fire(f"{DOMAIN}_changed", {"action": "refresh", "postalcode": postalcode, "provider": provider})
-            except Exception as error:
-                _LOGGER.error(f"fetch data failed : {error}")

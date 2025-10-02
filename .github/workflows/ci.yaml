@@ -1,0 +1,146 @@
+name: CI
+
+on:
+  push:
+    branches: [main, master, dev]
+  pull_request:
+    branches: [main, master, dev]
+  workflow_dispatch:
+
+jobs:
+  lint:
+    name: Lint and Format Check
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+        
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.11"
+          
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install black isort flake8 mypy
+          pip install homeassistant aiohttp types-aiofiles
+          
+      - name: Run Black (Code formatting)
+        run: |
+          black --check --diff custom_components/
+          
+      - name: Run isort (Import sorting)
+        run: |
+          isort --check-only --diff custom_components/
+          
+      - name: Run flake8 (Linting)
+        run: |
+          flake8 custom_components/ --count --select=E9,F63,F7,F82 --show-source --statistics
+          
+  test:
+    name: Test Integration
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ["3.11", "3.12"]
+        
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+        
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ matrix.python-version }}
+          
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install homeassistant aiohttp pytest pytest-asyncio pytest-cov
+          
+      - name: Validate Python files
+        run: |
+          python -m py_compile custom_components/swemail/*.py
+          python -m py_compile custom_components/swemail/woker/*.py
+          
+      - name: Check imports
+        run: |
+          python -c "from custom_components.swemail import DOMAIN"
+          python -c "from custom_components.swemail.const import DOMAIN, CONF_POSTALCODE"
+          
+  validate-translations:
+    name: Validate Translations
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+        
+      - name: Validate translation files
+        run: |
+          python3 -c "
+          import json
+          import os
+          from pathlib import Path
+          
+          translations_dir = Path('custom_components/swemail/translations')
+          
+          if not translations_dir.exists():
+              print('Translations directory not found')
+              exit(1)
+          
+          # Check English reference
+          en_file = translations_dir / 'en.json'
+          if not en_file.exists():
+              print('English translation file not found')
+              exit(1)
+          
+          with open(en_file, 'r', encoding='utf-8') as f:
+              en_data = json.load(f)
+          
+          def get_keys(d, prefix=''):
+              keys = set()
+              for k, v in d.items():
+                  key_path = f'{prefix}.{k}' if prefix else k
+                  keys.add(key_path)
+                  if isinstance(v, dict):
+                      keys.update(get_keys(v, key_path))
+              return keys
+          
+          en_keys = get_keys(en_data)
+          print(f'English translation has {len(en_keys)} keys')
+          
+          # Check all other translation files
+          for trans_file in translations_dir.glob('*.json'):
+              if trans_file.name == 'en.json':
+                  continue
+                  
+              try:
+                  with open(trans_file, 'r', encoding='utf-8') as f:
+                      trans_data = json.load(f)
+                  
+                  trans_keys = get_keys(trans_data)
+                  
+                  if en_keys != trans_keys:
+                      missing = en_keys - trans_keys
+                      extra = trans_keys - en_keys
+                      
+                      if missing:
+                          print(f'✗ {trans_file.name} missing keys: {missing}')
+                      if extra:
+                          print(f'✗ {trans_file.name} extra keys: {extra}')
+                      
+                      if missing or extra:
+                          exit(1)
+                  
+                  print(f'✓ {trans_file.name} structure matches English')
+                  
+              except json.JSONDecodeError as e:
+                  print(f'✗ {trans_file.name} invalid JSON: {e}')
+                  exit(1)
+              except Exception as e:
+                  print(f'✗ Error processing {trans_file.name}: {e}')
+                  exit(1)
+          
+          print('All translation files are valid and consistent!')
+          "

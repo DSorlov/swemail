@@ -1,0 +1,59 @@
+{
+    "title": "İsveç Posta Dağıtımı",
+    "config": {
+      "abort": {
+        "already_configured": "Girilen posta kodu zaten yapılandırılmış."
+      },
+      "error": {
+        "invalid_postcode": "Girilen posta kodu geçerli değil",
+        "creation_error": "Yapılandırma nesnesi oluşturulurken bir hata oluştu"
+      },
+      "step": {
+        "user": {
+          "data": {
+            "postalcode": "Posta Kodu",
+            "postnord": "Postnord kontrolünü etkinleştir",
+            "citymail": "Citymail kontrolünü etkinleştir"
+          },
+          "title": "İsveç Posta Dağıtımı"
+        }
+      }
+    },
+    "options": {
+      "abort": {
+        "already_configured": "Girilen posta kodu zaten yapılandırılmış."
+      },
+      "step": {
+        "user": {
+          "data": {
+            "postnord": "Postnord kontrolünü etkinleştir",
+            "citymail": "Citymail kontrolünü etkinleştir"
+          },
+          "title": "İsveç Posta Dağıtımı"
+        }
+      }
+    },
+    "entity": {
+      "sensor": {
+        "maildaysleft": {
+          "state": {
+            "0": "Bugün",
+            "1": "Yarın",
+            "2": "İki gün içinde",
+            "3": "Üç gün içinde",
+            "4": "Dört gün içinde",
+            "5": "Beş gün içinde",
+            "6": "Altı gün içinde",
+            "7": "Bir hafta içinde",
+            "8": "Sekiz gün içinde",
+            "9": "Dokuz gün içinde",
+            "10": "On gün içinde",
+            "11": "On bir gün içinde",
+            "12": "On iki gün içinde",
+            "13": "On üç gün içinde",
+            "14": "İki hafta içinde"
+          }
+        }
+      }
+    }
+  }

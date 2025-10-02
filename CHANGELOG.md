@@ -4,6 +4,29 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.0.0] (2025-10-02)
+Major architecture overhaul to completely modernize the integration
+Removing Clearbit dependency and improvements in blocking http io operations.
+
+### Added
+- New Language Support: Added translations for Danish (da), Norwegian (no), Finnish (fi), Spanish (es), Turkish (tr), Arabic (ar), and Ukrainian (uk)
+
+### Changed
+- Replaced requests with aiohttp - Eliminated blocking I/O operations
+- Improved device info - Better device registry integration
+- Enhanced attribute management - More efficient and reliable state updates
+- Better date handling - Fixed midnight edge case calculations
+- Proper state classes - Added SensorStateClass.MEASUREMENT and SensorDeviceClass.DURATION
+- Concurrent API calls - All provider data fetched simultaneously for better performance
+
+### Removed
+- Clearbit API calls - Now uses local PNG files for logos
+
+### Performance Improvements
+- Non-blocking operations - All network calls are now async
+- Reduced update frequency - Coordinator prevents redundant API calls
+- Better resource management - Proper session handling and cleanup
+
 ## [1.0.7] (2023-06-12)
 
 ### Fixes

@@ -1,0 +1,59 @@
+{
+    "title": "Svensk Postleverance",
+    "config": {
+      "abort": {
+        "already_configured": "Det indtastede postnummer er allerede konfigureret."
+      },
+      "error": {
+        "invalid_postcode": "Det indtastede postnummer er ikke gyldigt",
+        "creation_error": "Der opstod en fejl under oprettelse af konfigurationsobjekt"
+      },
+      "step": {
+        "user": {
+          "data": {
+            "postalcode": "Postnummer",
+            "postnord": "Aktivér Postnord-kontrol",
+            "citymail": "Aktivér Citymail-kontrol"
+          },
+          "title": "Svensk Postleverance"
+        }
+      }
+    },
+    "options": {
+      "abort": {
+        "already_configured": "Det indtastede postnummer er allerede konfigureret."
+      },
+      "step": {
+        "user": {
+          "data": {
+            "postnord": "Aktivér Postnord-kontrol",
+            "citymail": "Aktivér Citymail-kontrol"
+          },
+          "title": "Svensk Postleverance"
+        }
+      }
+    },
+    "entity": {
+      "sensor": {
+        "maildaysleft": {
+          "state": {
+            "0": "I dag",
+            "1": "I morgen",
+            "2": "Om to dage",
+            "3": "Om tre dage",
+            "4": "Om fire dage",
+            "5": "Om fem dage",
+            "6": "Om seks dage",
+            "7": "Om en uge",
+            "8": "Om otte dage",
+            "9": "Om ni dage",
+            "10": "Om ti dage",
+            "11": "Om elleve dage",
+            "12": "Om tolv dage",
+            "13": "Om tretten dage",
+            "14": "Om to uger"
+          }
+        }
+      }
+    }
+  }

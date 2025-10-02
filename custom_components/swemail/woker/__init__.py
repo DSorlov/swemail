@@ -1,11 +1,10 @@
 import logging
-from pydoc import resolve
 import re
 from datetime import datetime
 import html
 import aiohttp
 import asyncio
-import requests
+from typing import Dict, Any, Optional
 
 from ..const import CONF_PROVIDER_CITYMAIL, CONF_PROVIDER_POSTNORD
 
@@ -63,40 +62,37 @@ class HttpWorker:
     def data(self):
         return self._data
 
-    async def _fetch_data_async(self, url, datatype):
-        async with aiohttp.ClientSession() as session:
+    async def _fetch_data_async(self, url: str, datatype: str = 'text') -> Any:
+        """Fetch data from URL asynchronously."""
+        async with aiohttp.ClientSession(timeout=aiohttp.ClientTimeout(total=30)) as session:
             async with session.get(url) as resp:
-                if (datatype=='json'):
-                    result = await resp.json()
+                resp.raise_for_status()
+                if datatype == 'json':
+                    return await resp.json()
                 else:
-                    result = await resp.text()
+                    return await resp.text()
 
-                return result
-
-    def _fetch_data(self, url):
-        r = requests.get(url)
-        r.raise_for_status()
-        return r
-
-    def _handle_pn_data(self, data,postalcode):
+    def _handle_pn_data(self, data: Dict[str, Any], postalcode: int) -> None:
+        """Handle PostNord data response."""
         try:
             arr = data["delivery"].split()
-            formattedDate = f"{arr[2]}-{self._dateTable[arr[1]]}-{arr[0].zfill(2)}"
+            formatted_date = f"{arr[2]}-{self._dateTable[arr[1]]}-{arr[0].zfill(2)}"
 
             self._data[CONF_PROVIDER_POSTNORD][data["postalCode"]] = {
                 'last_update': datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
                 'postal_city': data["city"].capitalize(),
-                'next_delivery': formattedDate
+                'next_delivery': formatted_date
             }
         except Exception as error:
-                _LOGGER.error(f"Process data failed (PN): {error}")
-                self._data[CONF_PROVIDER_POSTNORD][postalcode] = {
-                    'last_update': '',
-                    'postal_city': '',
-                    'next_delivery': ''                    
-                }
+            _LOGGER.error("Process data failed (PN): %s", error)
+            self._data[CONF_PROVIDER_POSTNORD][postalcode] = {
+                'last_update': '',
+                'postal_city': '',
+                'next_delivery': ''                    
+            }
 
-    def _handle_cm_data(self, data,postalcode):
+    def _handle_cm_data(self, data: str, postalcode: int) -> None:
+        """Handle CityMail data response."""
         try:
             match = re.search(r'<h2>([0-9]{5}) (.*)<\/h2>[\w\W]*>(.*)<\/span>', data)     
             if match:
@@ -106,23 +102,27 @@ class HttpWorker:
                     'next_delivery': match.group(3)
                 }
         except Exception as error:
-                _LOGGER.error(f"Process data failed (CM): {error}")
-                self._data[CONF_PROVIDER_CITYMAIL][postalcode] = {
-                    'last_update': '',
-                    'postal_city': '',
-                    'next_delivery': ''                    
-                }
+            _LOGGER.error("Process data failed (CM): %s", error)
+            self._data[CONF_PROVIDER_CITYMAIL][postalcode] = {
+                'last_update': '',
+                'postal_city': '',
+                'next_delivery': ''                    
+            }
 
 
-    async def fetchPostalCity(self, postalcode):
-            data = await self._fetch_data_async(self._URL[CONF_PROVIDER_POSTNORD].format(postalcode),'json')
-            return data["city"].capitalize()
+    async def fetch_postal_city(self, postalcode: int) -> str:
+        """Fetch postal city name from PostNord API."""
+        data = await self._fetch_data_async(self._URL[CONF_PROVIDER_POSTNORD].format(postalcode), 'json')
+        return data["city"].capitalize()
 
-    def fetch(self,postalcode,provider):
-        data = self._fetch_data(self._URL[provider].format(postalcode))
-
-        if (provider==CONF_PROVIDER_POSTNORD):
-            self._handle_pn_data(data.json(),postalcode)
-
-        if (provider==CONF_PROVIDER_CITYMAIL):
-            self._handle_cm_data(data.text,postalcode)
+    async def fetch_async(self, postalcode: int, provider: str) -> None:
+        """Fetch delivery data for a specific provider asynchronously."""
+        try:
+            if provider == CONF_PROVIDER_POSTNORD:
+                data = await self._fetch_data_async(self._URL[provider].format(postalcode), 'json')
+                self._handle_pn_data(data, postalcode)
+            elif provider == CONF_PROVIDER_CITYMAIL:
+                data = await self._fetch_data_async(self._URL[provider].format(postalcode), 'text')
+                self._handle_cm_data(data, postalcode)
+        except Exception as error:
+            _LOGGER.error("Fetch failed for %s (%s): %s", provider, postalcode, error)

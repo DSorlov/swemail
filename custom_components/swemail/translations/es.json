@@ -1,0 +1,59 @@
+{
+    "title": "Entrega de Correo Sueco",
+    "config": {
+      "abort": {
+        "already_configured": "El código postal ingresado ya está configurado."
+      },
+      "error": {
+        "invalid_postcode": "El código postal ingresado no es válido",
+        "creation_error": "Ocurrió un error al crear el objeto de configuración"
+      },
+      "step": {
+        "user": {
+          "data": {
+            "postalcode": "Código Postal",
+            "postnord": "Habilitar verificación de Postnord",
+            "citymail": "Habilitar verificación de Citymail"
+          },
+          "title": "Entrega de Correo Sueco"
+        }
+      }
+    },
+    "options": {
+      "abort": {
+        "already_configured": "El código postal ingresado ya está configurado."
+      },
+      "step": {
+        "user": {
+          "data": {
+            "postnord": "Habilitar verificación de Postnord",
+            "citymail": "Habilitar verificación de Citymail"
+          },
+          "title": "Entrega de Correo Sueco"
+        }
+      }
+    },
+    "entity": {
+      "sensor": {
+        "maildaysleft": {
+          "state": {
+            "0": "Hoy",
+            "1": "Mañana",
+            "2": "En dos días",
+            "3": "En tres días",
+            "4": "En cuatro días",
+            "5": "En cinco días",
+            "6": "En seis días",
+            "7": "En una semana",
+            "8": "En ocho días",
+            "9": "En nueve días",
+            "10": "En diez días",
+            "11": "En once días",
+            "12": "En doce días",
+            "13": "En trece días",
+            "14": "En dos semanas"
+          }
+        }
+      }
+    }
+  }

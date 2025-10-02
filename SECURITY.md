@@ -2,11 +2,12 @@
 
 ## Supported Versions
 
-I activly support version 1 and above.
+I activly support version 2 and above.
 
 | Version | Supported          |
 | ------- | ------------------ |
-| 1.0+    | :white_check_mark: |
+| 2.0.x   | ✅ |
+| < 2.0   | ❌ |
 
 ## Reporting a vulnerability
 

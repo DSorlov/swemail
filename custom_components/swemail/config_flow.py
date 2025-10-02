@@ -46,7 +46,7 @@ class SweMailDeliveryConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
 
             try:
                 postalcode = user_input[CONF_POSTALCODE]
-                postalCity = await HttpWorker().fetchPostalCity(postalcode)
+                postalCity = await HttpWorker().fetch_postal_city(postalcode)
             except:
                 return self.async_show_form(step_id="user", data_schema=error_schema, errors={ "base": "invalid_postcode"})
 

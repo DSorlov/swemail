@@ -1,214 +1,274 @@
 import logging
-from re import L
-from urllib.request import parse_keqv_list
-
-from homeassistant.components.sensor import SensorEntity
-from homeassistant.const import (ATTR_IDENTIFIERS, ATTR_MANUFACTURER,
-                                 ATTR_MODEL, ATTR_NAME)
-from homeassistant.helpers.device_registry import DeviceEntryType
 from datetime import datetime
+from typing import Any, Dict, Optional
+
+from homeassistant.components.sensor import SensorEntity, SensorStateClass, SensorDeviceClass
+from homeassistant.const import UnitOfTime
+from homeassistant.helpers.device_registry import DeviceEntryType
+from homeassistant.helpers.entity import DeviceInfo
+from homeassistant.helpers.update_coordinator import CoordinatorEntity
+from homeassistant.config_entries import ConfigEntry
+from homeassistant.core import HomeAssistant
+from homeassistant.helpers.entity_platform import AddEntitiesCallback
 
 from .const import CONF_POSTALCODE, CONF_PROVIDER_CITYMAIL, CONF_PROVIDER_POSTNORD, DEVICE_AUTHOR, DEVICE_NAME, DOMAIN, CONF_PROVIDERS, DEVICE_VERSION, SENSOR_NAME, SENSOR_ATTRIB
 
 _LOGGER = logging.getLogger(__name__)
 
 
-async def async_setup_entry(hass, config_entry, async_add_entities):
-    """Set up platform for a new integration.   
-
-    Called by the HA framework after async_setup_platforms has been called
-    during initialization of a new integration.
-    """
-    worker = hass.data[DOMAIN].worker
+async def async_setup_entry(
+    hass: HomeAssistant,
+    config_entry: ConfigEntry,
+    async_add_entities: AddEntitiesCallback,
+) -> None:
+    """Set up Swedish Mail sensors."""
+    coordinator = hass.data[DOMAIN][config_entry.entry_id]
     entities = []
 
-    if (config_entry.data.get(CONF_PROVIDER_POSTNORD)):
-        entities.append(ProviderMailDeliverySensor(hass, worker, config_entry.data, CONF_PROVIDER_POSTNORD))
+    # Add provider-specific sensors for enabled providers
+    for provider in coordinator.providers:
+        entities.append(ProviderMailDeliverySensor(coordinator, provider))
 
-    if (config_entry.data.get(CONF_PROVIDER_CITYMAIL)):
-        entities.append(ProviderMailDeliverySensor(hass, worker, config_entry.data, CONF_PROVIDER_CITYMAIL))
-
-    entities.append(NextMailDeliverySensor(hass, worker, config_entry.data))
+    # Add combined next delivery sensor if multiple providers are enabled
+    if len(coordinator.providers) > 1:
+        entities.append(NextMailDeliverySensor(coordinator))
 
     async_add_entities(entities)
 
 
-class ProviderMailDeliverySensor(SensorEntity):
-    """Common functionality for all entities."""
+class ProviderMailDeliverySensor(CoordinatorEntity, SensorEntity):
+    """Mail delivery sensor for a specific provider."""
 
-    def __init__(self, hass, worker, config, provider):
-        self._worker = worker
-        self._postalcode = config[CONF_POSTALCODE]
+    _attr_state_class = SensorStateClass.MEASUREMENT
+    _attr_native_unit_of_measurement = UnitOfTime.DAYS
+    _attr_device_class = SensorDeviceClass.DURATION
+    _attr_icon = "mdi:email-fast-outline"
+    _attr_translation_key = "maildaysleft"
+
+    def __init__(self, coordinator, provider: str):
+        """Initialize the sensor."""
+        super().__init__(coordinator)
         self._provider = provider
-        self._value = None
-
-        self._update_sensor_listener = None
-
-        # set HA instance attributes directly (don't use property)
-        self._attr_unique_id = f"{DOMAIN}_{self._postalcode}_{self._provider}"
-        self._attr_name = f"{self._provider.capitalize()} {SENSOR_NAME} {self._postalcode}"
-        self._attr_icon = "mdi:email-fast-outline"
-        self._attr_translation_key = "maildaysleft"
-        self._attr_device_info = {
-            ATTR_IDENTIFIERS: {(DOMAIN, DEVICE_NAME)},
-            ATTR_NAME: DEVICE_NAME,
-            ATTR_MANUFACTURER: DEVICE_AUTHOR,
-            ATTR_MODEL: "v"+DEVICE_VERSION,
-            "entry_type": DeviceEntryType.SERVICE,
-        }
-
-        
-
-    async def async_update(self):
-        """Update the value of the entity."""
-        attributes = {}
-        provider = self._provider
-
-        if (provider in self._worker.data and self._postalcode in self._worker.data[provider]):
-            nextDelivery = self._worker.data[provider][self._postalcode]['next_delivery']
-            nextDate = datetime.strptime(nextDelivery, "%Y-%m-%d")
-            numDays = (nextDate - datetime.now()).days+1
-
-            ## FIXME?
-            ## Perhaps we could fix this in a better way. When -1 it means that we have passed midnight but the data
-            ## in the cache still have not refreshed so the calculation fails. For now just resort to keep today until
-            ## it refreshes. This can only affect during one hour after midnight every day so no bigger issue?
-            numDays = 0 if numDays < 0 else numDays
-
-            attributes['last_update']= self._worker.data[provider][self._postalcode]['last_update']
-            attributes['postal_city']= self._worker.data[provider][self._postalcode]['postal_city']
-            attributes['logo'] = f"https://logo.clearbit.com/{provider}.se"
-            attributes['next_delivery'] = nextDelivery
-            attributes['days_left'] = numDays
-            self._value = numDays
-        else:
-            attributes['last_update'] = ''
-            attributes['postal_city'] = ''
-            attributes['logo'] = ''
-            attributes['next_delivery'] = ''
-            attributes['days_left'] = ''
-            self._value = None
-    
-        attributes['provider']= provider
-        attributes['postal_code']= self._postalcode
-        self._attr_extra_state_attributes = attributes
-
-        self._attr_attribution = SENSOR_ATTRIB
+        self._attr_unique_id = f"{DOMAIN}_{coordinator.postal_code}_{provider}"
+        self._attr_name = f"{provider.capitalize()} {SENSOR_NAME} {coordinator.postal_code}"
+        self._attr_device_info = DeviceInfo(
+            identifiers={(DOMAIN, f"{DEVICE_NAME}_{coordinator.postal_code}")},
+            name=f"{DEVICE_NAME} {coordinator.postal_code}",
+            manufacturer=DEVICE_AUTHOR,
+            model=f"v{DEVICE_VERSION}",
+            entry_type=DeviceEntryType.SERVICE,
+        )
 
     @property
-    def available(self):
-        """Return true if value is valid."""
-        return self._value is not None
+    def native_value(self) -> Optional[int]:
+        """Return the native value of the sensor."""
+        if not self.coordinator.data or self._provider not in self.coordinator.data:
+            return None
+            
+        provider_data = self.coordinator.data[self._provider]
+        if self.coordinator.postal_code not in provider_data:
+            return None
+            
+        try:
+            next_delivery = provider_data[self.coordinator.postal_code]['next_delivery']
+            if not next_delivery:
+                return None
+                
+            next_date = datetime.strptime(next_delivery, "%Y-%m-%d")
+            num_days = (next_date - datetime.now()).days + 1
+            
+            # Handle edge case around midnight
+            return max(0, num_days)
+        except (ValueError, KeyError):
+            return None
 
     @property
-    def native_value(self):
-        """Return the value of the entity."""
-        return self._value
-
-    @property
-    def device_class(self):
-        """Return the class of this device."""
-        return f"{DOMAIN}__providersensor"        
-
-
-
-class NextMailDeliverySensor(SensorEntity):
-    """Common functionality for all entities."""
-
-    def __init__(self, hass, worker, config):
-        self._worker = worker
-        self._postalcode = config[CONF_POSTALCODE]
-        self._providers = []
-        self._value = None
-
-        for provider in CONF_PROVIDERS:
-            if (config[provider]):
-                 self._providers.append(provider) 
-
-        self._update_sensor_listener = None
-    
-        # set HA instance attributes directly (don't use property)
-        self._attr_unique_id = f"{DOMAIN}_{self._postalcode}"
-        self._attr_name = f"Mail {SENSOR_NAME} {self._postalcode}"
-        self._attr_icon = "mdi:email-fast-outline"
-        self._attr_translation_key = "maildaysleft"
-        self._attr_device_info = {
-            ATTR_IDENTIFIERS: {(DOMAIN, DEVICE_NAME)},
-            ATTR_NAME: DEVICE_NAME,
-            ATTR_MANUFACTURER: DEVICE_AUTHOR,
-            ATTR_MODEL: "v"+DEVICE_VERSION,
-            "entry_type": DeviceEntryType.SERVICE,
-        }
-
-        
-
-    async def async_update(self):
-        """Update the value of the entity."""
+    def extra_state_attributes(self) -> Dict[str, Any]:
+        """Return additional state attributes."""
         attributes = {
-            'all_providers': ",".join(self._providers),
+            'provider': self._provider,
+            'postal_code': self.coordinator.postal_code,
+            'logo': f"/local/swemail/{self._provider}.png"
         }
+        
+        if not self.coordinator.data or self._provider not in self.coordinator.data:
+            attributes.update({
+                'last_update': '',
+                'postal_city': '',
+                'next_delivery': '',
+                'days_left': ''
+            })
+            return attributes
+            
+        provider_data = self.coordinator.data[self._provider]
+        postal_data = provider_data.get(self.coordinator.postal_code, {})
+        
+        attributes.update({
+            'last_update': postal_data.get('last_update', ''),
+            'postal_city': postal_data.get('postal_city', ''),
+            'next_delivery': postal_data.get('next_delivery', ''),
+            'days_left': self.native_value or ''
+        })
+        
+        return attributes
 
-        bestDate = None
-        bestProvider = None
+    @property
+    def attribution(self) -> str:
+        """Return the attribution."""
+        return SENSOR_ATTRIB
 
-        for provider in self._providers:
-            if (provider in self._worker.data and self._postalcode in self._worker.data[provider]):
-                nextDelivery = self._worker.data[provider][self._postalcode]['next_delivery']
-                newDate = datetime.strptime(nextDelivery, "%Y-%m-%d")
-                numDays = (newDate - datetime.now()).days+1
+    @property
+    def available(self) -> bool:
+        """Return if entity is available."""
+        return self.coordinator.last_update_success and self.native_value is not None
 
-                ## FIXME?
-                ## Perhaps we could fix this in a better way. When -1 it means that we have passed midnight but the data
-                ## in the cache still have not refreshed so the calculation fails. For now just resort to keep today until
-                ## it refreshes. This can only affect during one hour after midnight every day so no bigger issue?
-                numDays = 0 if numDays < 0 else numDays
 
-                attributes[provider+'_last_update']= self._worker.data[provider][self._postalcode]['last_update']
-                attributes[provider+'_postal_city']= self._worker.data[provider][self._postalcode]['postal_city']
-                attributes[provider+'_next_delivery']= nextDelivery
-                attributes[provider+'_days_left'] = numDays
-                attributes[provider+'_logo'] = f"https://logo.clearbit.com/{provider}.se"
+class NextMailDeliverySensor(CoordinatorEntity, SensorEntity):
+    """Combined mail delivery sensor showing next delivery from all providers."""
 
-                if (bestDate is None or newDate < bestDate):
-                    bestDate = newDate
-                    bestProvider = provider
-                    self._value = numDays
+    _attr_state_class = SensorStateClass.MEASUREMENT
+    _attr_native_unit_of_measurement = UnitOfTime.DAYS
+    _attr_device_class = SensorDeviceClass.DURATION
+    _attr_icon = "mdi:email-fast-outline"
+    _attr_translation_key = "maildaysleft"
 
-            else:
-                attributes[provider+'_last_update'] = ''
-                attributes[provider+'_postal_city'] = ''
-                attributes[provider+'_next_delivery'] = ''
-                attributes[provider+'_days_left'] = ''
-                attributes[provider+'_logo'] = f"https://logo.clearbit.com/{provider}.se"
+    def __init__(self, coordinator):
+        """Initialize the sensor."""
+        super().__init__(coordinator)
+        self._attr_unique_id = f"{DOMAIN}_{coordinator.postal_code}"
+        self._attr_name = f"Mail {SENSOR_NAME} {coordinator.postal_code}"
+        self._attr_device_info = DeviceInfo(
+            identifiers={(DOMAIN, f"{DEVICE_NAME}_{coordinator.postal_code}")},
+            name=f"{DEVICE_NAME} {coordinator.postal_code}",
+            manufacturer=DEVICE_AUTHOR,
+            model=f"v{DEVICE_VERSION}",
+            entry_type=DeviceEntryType.SERVICE,
+        )
 
-        if (self._value is None):
-            attributes['next_provider'] = ''
-            attributes['next_logo'] = ''
-            attributes['next_delivery'] = ''
-            attributes['next_days_left'] = ''
+    @property
+    def native_value(self) -> Optional[int]:
+        """Return the native value (days until next delivery)."""
+        if not self.coordinator.data:
+            return None
+            
+        best_date = None
+        best_days = None
+        
+        for provider in self.coordinator.providers:
+            if provider not in self.coordinator.data:
+                continue
+                
+            provider_data = self.coordinator.data[provider]
+            if self.coordinator.postal_code not in provider_data:
+                continue
+                
+            try:
+                next_delivery = provider_data[self.coordinator.postal_code]['next_delivery']
+                if not next_delivery:
+                    continue
+                    
+                next_date = datetime.strptime(next_delivery, "%Y-%m-%d")
+                num_days = max(0, (next_date - datetime.now()).days + 1)
+                
+                if best_date is None or next_date < best_date:
+                    best_date = next_date
+                    best_days = num_days
+                    
+            except (ValueError, KeyError):
+                continue
+                
+        return best_days
+
+    @property
+    def extra_state_attributes(self) -> Dict[str, Any]:
+        """Return additional state attributes."""
+        attributes = {
+            'all_providers': ",".join(self.coordinator.providers),
+            'postal_code': self.coordinator.postal_code,
+        }
+        
+        if not self.coordinator.data:
+            return attributes
+            
+        best_date = None
+        best_provider = None
+        
+        # Add individual provider data
+        for provider in self.coordinator.providers:
+            prefix = f"{provider}_"
+            
+            if provider not in self.coordinator.data:
+                attributes.update({
+                    f"{prefix}last_update": '',
+                    f"{prefix}postal_city": '',
+                    f"{prefix}next_delivery": '',
+                    f"{prefix}days_left": '',
+                    f"{prefix}logo": f"/local/swemail/{provider}.png"
+                })
+                continue
+                
+            provider_data = self.coordinator.data[provider]
+            postal_data = provider_data.get(self.coordinator.postal_code, {})
+            
+            try:
+                next_delivery = postal_data.get('next_delivery', '')
+                if next_delivery:
+                    next_date = datetime.strptime(next_delivery, "%Y-%m-%d")
+                    num_days = max(0, (next_date - datetime.now()).days + 1)
+                    
+                    if best_date is None or next_date < best_date:
+                        best_date = next_date
+                        best_provider = provider
+                        
+                    attributes.update({
+                        f"{prefix}last_update": postal_data.get('last_update', ''),
+                        f"{prefix}postal_city": postal_data.get('postal_city', ''),
+                        f"{prefix}next_delivery": next_delivery,
+                        f"{prefix}days_left": num_days,
+                        f"{prefix}logo": f"/local/swemail/{provider}.png"
+                    })
+                else:
+                    attributes.update({
+                        f"{prefix}last_update": '',
+                        f"{prefix}postal_city": '',
+                        f"{prefix}next_delivery": '',
+                        f"{prefix}days_left": '',
+                        f"{prefix}logo": f"/local/swemail/{provider}.png"
+                    })
+            except (ValueError, KeyError):
+                attributes.update({
+                    f"{prefix}last_update": '',
+                    f"{prefix}postal_city": '',
+                    f"{prefix}next_delivery": '',
+                    f"{prefix}days_left": '',
+                    f"{prefix}logo": f"/local/swemail/{provider}.png"
+                })
+        
+        # Add next delivery info (best/earliest)
+        if best_provider:
+            attributes.update({
+                'next_provider': best_provider.capitalize(),
+                'next_logo': f"/local/swemail/{best_provider}.png",
+                'next_delivery': attributes[f"{best_provider}_next_delivery"],
+                'next_days_left': attributes[f"{best_provider}_days_left"]
+            })
         else:
-            attributes['next_provider'] = bestProvider.capitalize()
-            attributes['next_logo'] = f"https://logo.clearbit.com/{bestProvider}.se"
-            attributes['next_delivery'] = attributes[bestProvider+'_next_delivery']
-            attributes['next_days_left'] = attributes[bestProvider+'_days_left']
-
-        attributes['postal_code']= self._postalcode
-        self._attr_extra_state_attributes = attributes
-
-        self._attr_attribution = SENSOR_ATTRIB
-
-    @property
-    def available(self):
-        """Return true if value is valid."""
-        return self._value is not None
+            attributes.update({
+                'next_provider': '',
+                'next_logo': '',
+                'next_delivery': '',
+                'next_days_left': ''
+            })
+            
+        return attributes
 
     @property
-    def native_value(self):
-        """Return the value of the entity."""
-        return self._value
+    def available(self) -> bool:
+        """Return if entity is available."""
+        return self.coordinator.last_update_success
 
     @property
-    def device_class(self):
-        """Return the class of this device."""
-        return f"{DOMAIN}__deliverysensor"        
+    def attribution(self) -> str:
+        """Return the attribution."""
+        return SENSOR_ATTRIB
 

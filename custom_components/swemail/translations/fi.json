@@ -1,0 +1,59 @@
+{
+    "title": "Ruotsin Postin Jakelu",
+    "config": {
+      "abort": {
+        "already_configured": "Syötetty postinumero on jo määritetty."
+      },
+      "error": {
+        "invalid_postcode": "Syötetty postinumero ei ole kelvollinen",
+        "creation_error": "Konfiguraatio-objektin luomisessa tapahtui virhe"
+      },
+      "step": {
+        "user": {
+          "data": {
+            "postalcode": "Postinumero",
+            "postnord": "Ota käyttöön Postnord-tarkistus",
+            "citymail": "Ota käyttöön Citymail-tarkistus"
+          },
+          "title": "Ruotsin Postin Jakelu"
+        }
+      }
+    },
+    "options": {
+      "abort": {
+        "already_configured": "Syötetty postinumero on jo määritetty."
+      },
+      "step": {
+        "user": {
+          "data": {
+            "postnord": "Ota käyttöön Postnord-tarkistus",
+            "citymail": "Ota käyttöön Citymail-tarkistus"
+          },
+          "title": "Ruotsin Postin Jakelu"
+        }
+      }
+    },
+    "entity": {
+      "sensor": {
+        "maildaysleft": {
+          "state": {
+            "0": "Tänään",
+            "1": "Huomenna",
+            "2": "Kahden päivän päästä",
+            "3": "Kolmen päivän päästä",
+            "4": "Neljän päivän päästä",
+            "5": "Viiden päivän päästä",
+            "6": "Kuuden päivän päästä",
+            "7": "Viikon päästä",
+            "8": "Kahdeksan päivän päästä",
+            "9": "Yhdeksän päivän päästä",
+            "10": "Kymmenen päivän päästä",
+            "11": "Yhdentoista päivän päästä",
+            "12": "Kahdentoista päivän päästä",
+            "13": "Kolmentoista päivän päästä",
+            "14": "Kahden viikon päästä"
+          }
+        }
+      }
+    }
+  }

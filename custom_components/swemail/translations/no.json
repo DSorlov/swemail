@@ -1,0 +1,59 @@
+{
+    "title": "Svensk Postlevering",
+    "config": {
+      "abort": {
+        "already_configured": "Det oppgitte postnummeret er allerede konfigurert."
+      },
+      "error": {
+        "invalid_postcode": "Det oppgitte postnummeret er ikke gyldig",
+        "creation_error": "Det oppstod en feil under opprettelse av konfigurasjonsobjekt"
+      },
+      "step": {
+        "user": {
+          "data": {
+            "postalcode": "Postnummer",
+            "postnord": "Aktivér Postnord-sjekk",
+            "citymail": "Aktivér Citymail-sjekk"
+          },
+          "title": "Svensk Postlevering"
+        }
+      }
+    },
+    "options": {
+      "abort": {
+        "already_configured": "Det oppgitte postnummeret er allerede konfigurert."
+      },
+      "step": {
+        "user": {
+          "data": {
+            "postnord": "Aktivér Postnord-sjekk",
+            "citymail": "Aktivér Citymail-sjekk"
+          },
+          "title": "Svensk Postlevering"
+        }
+      }
+    },
+    "entity": {
+      "sensor": {
+        "maildaysleft": {
+          "state": {
+            "0": "I dag",
+            "1": "I morgen",
+            "2": "Om to dager",
+            "3": "Om tre dager",
+            "4": "Om fire dager",
+            "5": "Om fem dager",
+            "6": "Om seks dager",
+            "7": "Om en uke",
+            "8": "Om åtte dager",
+            "9": "Om ni dager",
+            "10": "Om ti dager",
+            "11": "Om elleve dager",
+            "12": "Om tolv dager",
+            "13": "Om tretten dager",
+            "14": "Om to uker"
+          }
+        }
+      }
+    }
+  }
