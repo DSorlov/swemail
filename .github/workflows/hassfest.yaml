@@ -13,7 +13,7 @@ jobs:
     name: Validate integration
     steps:
       - name: Check out repository
-        uses: "actions/checkout@v4"
+        uses: "actions/checkout@v5"
       
       - name: Validate with hassfest
         uses: "home-assistant/actions/hassfest@master"
