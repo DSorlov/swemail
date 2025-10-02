@@ -6,6 +6,7 @@ import os
 from datetime import timedelta
 
 import voluptuous as vol
+from homeassistant.components.http import StaticPathConfig
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant, callback
 from homeassistant.exceptions import ConfigEntryNotReady
@@ -57,9 +58,9 @@ async def async_setup(hass, config):
 
     # Register static files for logos
     integration_dir = os.path.dirname(__file__)
-    await hass.http.async_register_static_paths(
-        [{"path": f"/local/{DOMAIN}", "directory": integration_dir}]
-    )
+    await hass.http.async_register_static_paths([
+        StaticPathConfig(f"/local/{DOMAIN}", integration_dir, cache_headers=True)
+    ])
 
     # SERVICE FUNCTIONS
     async def fetch_data(call):

@@ -13,7 +13,6 @@ Removing Clearbit dependency and improvements in blocking http io operations.
 
 ### Changed
 - Replaced requests with aiohttp - Eliminated blocking I/O operations
-- Updated static path registration - Uses modern async_register_static_paths API
 - Improved device info - Better device registry integration
 - Enhanced attribute management - More efficient and reliable state updates
 - Better date handling - Fixed midnight edge case calculations
