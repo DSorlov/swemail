@@ -10,17 +10,24 @@ Removing Clearbit dependency and improvements in blocking http io operations.
 
 ### Added
 - New Language Support: Added translations for Danish (da), Norwegian (no), Finnish (fi), Spanish (es), Turkish (tr), Arabic (ar), and Ukrainian (uk)
+- Migration handling: Automatic upgrade from v1.x to v2.x with proper version tracking
 
 ### Changed
 - Replaced requests with aiohttp - Eliminated blocking I/O operations
+- Updated static path registration - Uses modern StaticPathConfig with async_register_static_paths API
 - Improved device info - Better device registry integration
 - Enhanced attribute management - More efficient and reliable state updates
 - Better date handling - Fixed midnight edge case calculations
-- Proper state classes - Added SensorStateClass.MEASUREMENT and SensorDeviceClass.DURATION
 - Concurrent API calls - All provider data fetched simultaneously for better performance
+
+### Fixed
+- Translation display: Removed device class override that caused "2d" format instead of "om två dagar"
+- Config flow deprecation: Updated options flow to use modern HomeAssistant 2025.12+ patterns
+- Upgrade compatibility: Added proper migration from v1.x installations
 
 ### Removed
 - Clearbit API calls - Now uses local PNG files for logos
+- Duration device class - Allows custom translations to work properly
 
 ### Performance Improvements
 - Non-blocking operations - All network calls are now async

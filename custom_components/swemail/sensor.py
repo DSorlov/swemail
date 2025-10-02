@@ -50,9 +50,6 @@ async def async_setup_entry(
 class ProviderMailDeliverySensor(CoordinatorEntity, SensorEntity):
     """Mail delivery sensor for a specific provider."""
 
-    _attr_state_class = SensorStateClass.MEASUREMENT
-    _attr_native_unit_of_measurement = UnitOfTime.DAYS
-    _attr_device_class = SensorDeviceClass.DURATION
     _attr_icon = "mdi:email-fast-outline"
     _attr_translation_key = "maildaysleft"
 

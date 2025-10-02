@@ -105,7 +105,8 @@ class SweMailDeliveryOptionsFlow(config_entries.OptionsFlow):
 
     def __init__(self, config_entry):
         """Initialize HASL options flow."""
-        self.config_entry = config_entry
+        super().__init__()
+        self._config_entry = config_entry
 
     async def async_step_init(self, user_input=None):
         """Manage the options."""
@@ -122,11 +123,11 @@ class SweMailDeliveryOptionsFlow(config_entries.OptionsFlow):
             {
                 vol.Optional(
                     CONF_PROVIDER_POSTNORD,
-                    default=self.config_entry.data.get(CONF_PROVIDER_POSTNORD),
+                    default=self._config_entry.data.get(CONF_PROVIDER_POSTNORD),
                 ): bool,
                 vol.Optional(
                     CONF_PROVIDER_CITYMAIL,
-                    default=self.config_entry.data.get(CONF_PROVIDER_CITYMAIL),
+                    default=self._config_entry.data.get(CONF_PROVIDER_CITYMAIL),
                 ): bool,
             }
         )
@@ -134,7 +135,7 @@ class SweMailDeliveryOptionsFlow(config_entries.OptionsFlow):
         if user_input is None:
             return self.async_show_form(step_id="user", data_schema=data_schema)
         else:
-            postalcode = self.config_entry.data[CONF_POSTALCODE]
+            postalcode = self._config_entry.data[CONF_POSTALCODE]
 
             postalCity = await HttpWorker().fetch_postal_city(postalcode)
             entryTitle = f"{postalCity} {postalcode}"

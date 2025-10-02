@@ -86,6 +86,12 @@ async def reload_entry(hass, entry):
 
 async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     """Set up component from a config entry."""
+    
+    # Migration from v1.x to v2.x - ensure clean upgrade
+    if entry.version < 2:
+        _LOGGER.info("Migrating config entry from version %s to 2", entry.version)
+        hass.config_entries.async_update_entry(entry, version=2)
+    
     postal_code = entry.data[CONF_POSTALCODE]
     enabled_providers = [
         provider for provider in CONF_PROVIDERS if entry.data.get(provider, False)
