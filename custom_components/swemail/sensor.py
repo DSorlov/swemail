@@ -3,29 +3,25 @@ from datetime import datetime
 from typing import Any, Dict, Optional
 
 from homeassistant.components.sensor import (
+    SensorDeviceClass,
     SensorEntity,
     SensorStateClass,
-    SensorDeviceClass,
 )
+from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import UnitOfTime
+from homeassistant.core import HomeAssistant
 from homeassistant.helpers.device_registry import DeviceEntryType
 from homeassistant.helpers.entity import DeviceInfo
-from homeassistant.helpers.update_coordinator import CoordinatorEntity
-from homeassistant.config_entries import ConfigEntry
-from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
+from homeassistant.helpers.update_coordinator import CoordinatorEntity
 
 from .const import (
-    CONF_POSTALCODE,
-    CONF_PROVIDER_CITYMAIL,
-    CONF_PROVIDER_POSTNORD,
     DEVICE_AUTHOR,
     DEVICE_NAME,
-    DOMAIN,
-    CONF_PROVIDERS,
     DEVICE_VERSION,
-    SENSOR_NAME,
+    DOMAIN,
     SENSOR_ATTRIB,
+    SENSOR_NAME,
 )
 
 _LOGGER = logging.getLogger(__name__)
@@ -306,4 +302,3 @@ class NextMailDeliverySensor(CoordinatorEntity, SensorEntity):
     def attribution(self) -> str:
         """Return the attribution."""
         return SENSOR_ATTRIB
-

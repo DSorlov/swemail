@@ -1,10 +1,11 @@
+import asyncio
+import html
 import logging
 import re
 from datetime import datetime
-import html
+from typing import Any, Dict, Optional
+
 import aiohttp
-import asyncio
-from typing import Dict, Any, Optional
 
 from ..const import CONF_PROVIDER_CITYMAIL, CONF_PROVIDER_POSTNORD
 
@@ -109,7 +110,6 @@ class HttpWorker:
                 "postal_city": "",
                 "next_delivery": "",
             }
-
 
     async def fetch_postal_city(self, postalcode: int) -> str:
         """Fetch postal city name from PostNord API."""

@@ -1,18 +1,18 @@
 """Config flow"""
 
 import logging
+
 import voluptuous as vol
 from homeassistant import config_entries, exceptions
 from homeassistant.core import callback
-from .woker import HttpWorker
 
 from .const import (
     CONF_POSTALCODE,
-    DOMAIN,
-    CONF_PROVIDER_POSTNORD,
     CONF_PROVIDER_CITYMAIL,
-    CONF_TITLE,
+    CONF_PROVIDER_POSTNORD,
+    DOMAIN,
 )
+from .woker import HttpWorker
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -66,7 +66,7 @@ class SweMailDeliveryConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             try:
                 postalcode = user_input[CONF_POSTALCODE]
                 postalCity = await HttpWorker().fetch_postal_city(postalcode)
-            except:
+            except Exception:
                 return self.async_show_form(
                     step_id="user",
                     data_schema=error_schema,
@@ -87,7 +87,7 @@ class SweMailDeliveryConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                         CONF_PROVIDER_CITYMAIL: user_input[CONF_PROVIDER_CITYMAIL],
                     },
                 )
-            except:
+            except Exception:
                 return self.async_show_form(
                     step_id="user",
                     data_schema=error_schema,
@@ -107,18 +107,9 @@ class SweMailDeliveryOptionsFlow(config_entries.OptionsFlow):
         """Initialize HASL options flow."""
         self.config_entry = config_entry
 
-    async def validate_input(self, data):
-        """Validate input in step user"""
-        # FIXME: DOES NOT ACTUALLY VALIDATE ANYTHING! WE NEED THIS! =)
-        return data
-
-
-class SweMailDeliveryOptionsFlow(config_entries.OptionsFlow):
-    """HASL config flow options handler."""
-
-    def __init__(self, config_entry):
-        """Initialize HASL options flow."""
-        self.config_entry = config_entry
+    async def async_step_init(self, user_input=None):
+        """Manage the options."""
+        return await self.async_step_user(user_input)
 
     async def validate_input(self, data):
         """Validate input in step user"""
@@ -155,38 +146,4 @@ class SweMailDeliveryOptionsFlow(config_entries.OptionsFlow):
                     CONF_PROVIDER_POSTNORD: user_input[CONF_PROVIDER_POSTNORD],
                     CONF_PROVIDER_CITYMAIL: user_input[CONF_PROVIDER_CITYMAIL],
                 },
-            )
-class SweMailDeliveryOptionsFlow(config_entries.OptionsFlow):
-    """HASL config flow options handler."""
-
-    async def async_step_init(self, user_input=None):
-        """Manage the options."""
-        return await self.async_step_user(user_input)
-
-    async def validate_input(self, data):
-        """Validate input in step user"""
-        # FIXME: DOES NOT ACTUALLY VALIDATE ANYTHING! WE NEED THIS! =)
-        return data
-
-    async def async_step_user(self, user_input=None):
-   
-        data_schema = vol.Schema(
-            {
-                vol.Optional(CONF_PROVIDER_POSTNORD, default=self.config_entry.data.get(CONF_PROVIDER_POSTNORD)): bool,
-                vol.Optional(CONF_PROVIDER_CITYMAIL, default=self.config_entry.data.get(CONF_PROVIDER_CITYMAIL)): bool
-            }
-        )
-
-        if (user_input is None):
-            return self.async_show_form(step_id="user", data_schema=data_schema)
-        else:
-            postalcode = self.config_entry.data[CONF_POSTALCODE]
-
-            postalCity = await HttpWorker().fetch_postal_city(postalcode)
-            entryTitle = f'{postalCity} {postalcode}'
-
-            return self.async_create_entry(
-                title=entryTitle, data={CONF_POSTALCODE: postalcode,
-                                        CONF_PROVIDER_POSTNORD: user_input[CONF_PROVIDER_POSTNORD],
-                                        CONF_PROVIDER_CITYMAIL: user_input[CONF_PROVIDER_CITYMAIL]}
             )

@@ -1,6 +1,5 @@
 """Provide info to system health."""
 
-import sys
 import logging
 
 from homeassistant.components import system_health
@@ -21,7 +20,7 @@ def async_register(
         register.domain = DOMAIN
         register.async_register_info(system_health_info, "/config/integrations")
         _LOGGER.debug("System health registration succeeded")
-    except:
+    except Exception:
         _LOGGER.error("System health registration failed")
 
 
@@ -37,7 +36,7 @@ async def system_health_info(hass):
         }
         _LOGGER.debug("Information gather succeeded")
         return statusObject
-    except:
+    except Exception:
         _LOGGER.debug("Information gather Failed")
         return {
             "Version": VERSION,
