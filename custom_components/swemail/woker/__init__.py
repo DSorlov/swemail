@@ -32,6 +32,7 @@ class DeliveryDetails:
     def next_delivery(self):
         return self._next_delivery
 
+
 class HttpWorker:
     _URL = {
         CONF_PROVIDER_CITYMAIL: "https://postnummersok.citymail.se/?search={}",

@@ -130,7 +130,7 @@ class ProviderMailDeliverySensor(CoordinatorEntity, SensorEntity):
                 "days_left": self.native_value or "",
             }
         )
-        
+
         return attributes
 
     @property

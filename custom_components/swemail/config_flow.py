@@ -94,13 +94,23 @@ class SweMailDeliveryConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                     errors={"base": "creation_error"},
                 )
 
-
-
-
     @staticmethod
     @callback
     def async_get_options_flow(config_entry):
         return SweMailDeliveryOptionsFlow(config_entry)
+
+
+class SweMailDeliveryOptionsFlow(config_entries.OptionsFlow):
+    """HASL config flow options handler."""
+
+    def __init__(self, config_entry):
+        """Initialize HASL options flow."""
+        self.config_entry = config_entry
+
+    async def validate_input(self, data):
+        """Validate input in step user"""
+        # FIXME: DOES NOT ACTUALLY VALIDATE ANYTHING! WE NEED THIS! =)
+        return data
 
 
 class SweMailDeliveryOptionsFlow(config_entries.OptionsFlow):
