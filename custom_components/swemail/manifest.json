@@ -1,13 +1,13 @@
 {
   "domain": "swemail",
   "name": "Svensk Postutdelning",
+  "codeowners": ["@dsorlov"],
   "config_flow": true,
   "dependencies": [],
-  "requirements": ["aiohttp"],
   "documentation": "https://github.com/dsorlov/swemail",
-  "issue_tracker": "https://github.com/dsorlov/swemail/issues",
-  "codeowners": ["@dsorlov"],
   "iot_class": "cloud_polling",
-  "version": "2.0.0",
-  "quality_scale": "silver"
+  "issue_tracker": "https://github.com/dsorlov/swemail/issues",
+  "quality_scale": "silver",
+  "requirements": ["aiohttp"],
+  "version": "2.0.0"
 }

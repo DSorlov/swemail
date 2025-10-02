@@ -1,14 +1,12 @@
 """Provide info to system health."""
+
 import sys
 import logging
 
 from homeassistant.components import system_health
 from homeassistant.core import HomeAssistant, callback
 
-from .const import (
-    DOMAIN,
-    VERSION
-)
+from .const import DOMAIN, VERSION
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -35,7 +33,7 @@ async def system_health_info(hass):
         statusObject = {
             "Version": VERSION,
             "Idle": worker.is_idle(),
-            "Instances": len(worker.postalcodes)
+            "Instances": len(worker.postalcodes),
         }
         _LOGGER.debug("Information gather succeeded")
         return statusObject
@@ -44,5 +42,5 @@ async def system_health_info(hass):
         return {
             "Version": VERSION,
             "Idle": "(worker failed)",
-            "Instances": "(worker failed)"
+            "Instances": "(worker failed)",
         }

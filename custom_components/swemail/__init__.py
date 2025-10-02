@@ -1,4 +1,5 @@
 """Swedish Mail Delivery Integration."""
+
 import logging
 from datetime import timedelta
 import asyncio
@@ -8,12 +9,16 @@ from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant, callback
 from homeassistant.exceptions import ConfigEntryNotReady
 from homeassistant.helpers.update_coordinator import DataUpdateCoordinator, UpdateFailed
+from homeassistant.helpers import config_validation as cv
+import voluptuous as vol
 
 from .const import CONF_POSTALCODE, CONF_PROVIDERS, DOMAIN
 from .woker import HttpWorker
 
 _LOGGER = logging.getLogger(__name__)
 
+# Configuration schema - integration can only be set up via config entries
+CONFIG_SCHEMA = cv.config_entry_only_config_schema(DOMAIN)
 
 PLATFORMS = ["sensor"]
 
@@ -40,23 +45,22 @@ class SweMailCoordinator(DataUpdateCoordinator):
             tasks = []
             for provider in self.providers:
                 tasks.append(self.worker.fetch_async(self.postal_code, provider))
-            
+
             await asyncio.gather(*tasks)
             return self.worker.data
         except Exception as err:
             raise UpdateFailed(f"Error communicating with API: {err}") from err
 
+
 async def async_setup(hass, config):
     """Set up HASL integration"""
-    
+
     # Register static files for logos
     integration_dir = os.path.dirname(__file__)
     hass.http.register_static_path(
-        f"/local/{DOMAIN}",
-        integration_dir,
-        cache_headers=True
+        f"/local/{DOMAIN}", integration_dir, cache_headers=True
     )
-    
+
     # SERVICE FUNCTIONS
     async def fetch_data(call):
         """Service to manually refresh data for all coordinators."""
@@ -64,26 +68,31 @@ async def async_setup(hass, config):
             for coordinator in hass.data[DOMAIN].values():
                 await coordinator.async_request_refresh()
 
-    hass.services.async_register(DOMAIN, 'fetch_data', fetch_data)
+    hass.services.async_register(DOMAIN, "fetch_data", fetch_data)
 
     return True
+
 
 async def async_migrate_entry(hass, config_entry: ConfigEntry):
     return True
+
 
 async def reload_entry(hass, entry):
     """Reload HASL."""
     await async_unload_entry(hass, entry)
     await async_setup_entry(hass, entry)
 
+
 async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     """Set up component from a config entry."""
     postal_code = entry.data[CONF_POSTALCODE]
-    enabled_providers = [provider for provider in CONF_PROVIDERS if entry.data.get(provider, False)]
-    
+    enabled_providers = [
+        provider for provider in CONF_PROVIDERS if entry.data.get(provider, False)
+    ]
+
     # Create coordinator
     coordinator = SweMailCoordinator(hass, postal_code, enabled_providers)
-    
+
     # Store coordinator in hass.data
     hass.data.setdefault(DOMAIN, {})
     hass.data[DOMAIN][entry.entry_id] = coordinator
@@ -106,5 +115,3 @@ async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry):
             del hass.data[DOMAIN]
 
     return unload_ok
-
-

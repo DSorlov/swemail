@@ -2,7 +2,11 @@ import logging
 from datetime import datetime
 from typing import Any, Dict, Optional
 
-from homeassistant.components.sensor import SensorEntity, SensorStateClass, SensorDeviceClass
+from homeassistant.components.sensor import (
+    SensorEntity,
+    SensorStateClass,
+    SensorDeviceClass,
+)
 from homeassistant.const import UnitOfTime
 from homeassistant.helpers.device_registry import DeviceEntryType
 from homeassistant.helpers.entity import DeviceInfo
@@ -11,7 +15,18 @@ from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 
-from .const import CONF_POSTALCODE, CONF_PROVIDER_CITYMAIL, CONF_PROVIDER_POSTNORD, DEVICE_AUTHOR, DEVICE_NAME, DOMAIN, CONF_PROVIDERS, DEVICE_VERSION, SENSOR_NAME, SENSOR_ATTRIB
+from .const import (
+    CONF_POSTALCODE,
+    CONF_PROVIDER_CITYMAIL,
+    CONF_PROVIDER_POSTNORD,
+    DEVICE_AUTHOR,
+    DEVICE_NAME,
+    DOMAIN,
+    CONF_PROVIDERS,
+    DEVICE_VERSION,
+    SENSOR_NAME,
+    SENSOR_ATTRIB,
+)
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -50,7 +65,9 @@ class ProviderMailDeliverySensor(CoordinatorEntity, SensorEntity):
         super().__init__(coordinator)
         self._provider = provider
         self._attr_unique_id = f"{DOMAIN}_{coordinator.postal_code}_{provider}"
-        self._attr_name = f"{provider.capitalize()} {SENSOR_NAME} {coordinator.postal_code}"
+        self._attr_name = (
+            f"{provider.capitalize()} {SENSOR_NAME} {coordinator.postal_code}"
+        )
         self._attr_device_info = DeviceInfo(
             identifiers={(DOMAIN, f"{DEVICE_NAME}_{coordinator.postal_code}")},
             name=f"{DEVICE_NAME} {coordinator.postal_code}",
@@ -64,19 +81,19 @@ class ProviderMailDeliverySensor(CoordinatorEntity, SensorEntity):
         """Return the native value of the sensor."""
         if not self.coordinator.data or self._provider not in self.coordinator.data:
             return None
-            
+
         provider_data = self.coordinator.data[self._provider]
         if self.coordinator.postal_code not in provider_data:
             return None
-            
+
         try:
-            next_delivery = provider_data[self.coordinator.postal_code]['next_delivery']
+            next_delivery = provider_data[self.coordinator.postal_code]["next_delivery"]
             if not next_delivery:
                 return None
-                
+
             next_date = datetime.strptime(next_delivery, "%Y-%m-%d")
             num_days = (next_date - datetime.now()).days + 1
-            
+
             # Handle edge case around midnight
             return max(0, num_days)
         except (ValueError, KeyError):
@@ -86,29 +103,33 @@ class ProviderMailDeliverySensor(CoordinatorEntity, SensorEntity):
     def extra_state_attributes(self) -> Dict[str, Any]:
         """Return additional state attributes."""
         attributes = {
-            'provider': self._provider,
-            'postal_code': self.coordinator.postal_code,
-            'logo': f"/local/swemail/{self._provider}.png"
+            "provider": self._provider,
+            "postal_code": self.coordinator.postal_code,
+            "logo": f"/local/swemail/{self._provider}.png",
         }
-        
+
         if not self.coordinator.data or self._provider not in self.coordinator.data:
-            attributes.update({
-                'last_update': '',
-                'postal_city': '',
-                'next_delivery': '',
-                'days_left': ''
-            })
+            attributes.update(
+                {
+                    "last_update": "",
+                    "postal_city": "",
+                    "next_delivery": "",
+                    "days_left": "",
+                }
+            )
             return attributes
-            
+
         provider_data = self.coordinator.data[self._provider]
         postal_data = provider_data.get(self.coordinator.postal_code, {})
-        
-        attributes.update({
-            'last_update': postal_data.get('last_update', ''),
-            'postal_city': postal_data.get('postal_city', ''),
-            'next_delivery': postal_data.get('next_delivery', ''),
-            'days_left': self.native_value or ''
-        })
+
+        attributes.update(
+            {
+                "last_update": postal_data.get("last_update", ""),
+                "postal_city": postal_data.get("postal_city", ""),
+                "next_delivery": postal_data.get("next_delivery", ""),
+                "days_left": self.native_value or "",
+            }
+        )
         
         return attributes
 
@@ -150,116 +171,130 @@ class NextMailDeliverySensor(CoordinatorEntity, SensorEntity):
         """Return the native value (days until next delivery)."""
         if not self.coordinator.data:
             return None
-            
+
         best_date = None
         best_days = None
-        
+
         for provider in self.coordinator.providers:
             if provider not in self.coordinator.data:
                 continue
-                
+
             provider_data = self.coordinator.data[provider]
             if self.coordinator.postal_code not in provider_data:
                 continue
-                
+
             try:
-                next_delivery = provider_data[self.coordinator.postal_code]['next_delivery']
+                next_delivery = provider_data[self.coordinator.postal_code][
+                    "next_delivery"
+                ]
                 if not next_delivery:
                     continue
-                    
+
                 next_date = datetime.strptime(next_delivery, "%Y-%m-%d")
                 num_days = max(0, (next_date - datetime.now()).days + 1)
-                
+
                 if best_date is None or next_date < best_date:
                     best_date = next_date
                     best_days = num_days
-                    
+
             except (ValueError, KeyError):
                 continue
-                
+
         return best_days
 
     @property
     def extra_state_attributes(self) -> Dict[str, Any]:
         """Return additional state attributes."""
         attributes = {
-            'all_providers': ",".join(self.coordinator.providers),
-            'postal_code': self.coordinator.postal_code,
+            "all_providers": ",".join(self.coordinator.providers),
+            "postal_code": self.coordinator.postal_code,
         }
-        
+
         if not self.coordinator.data:
             return attributes
-            
+
         best_date = None
         best_provider = None
-        
+
         # Add individual provider data
         for provider in self.coordinator.providers:
             prefix = f"{provider}_"
-            
+
             if provider not in self.coordinator.data:
-                attributes.update({
-                    f"{prefix}last_update": '',
-                    f"{prefix}postal_city": '',
-                    f"{prefix}next_delivery": '',
-                    f"{prefix}days_left": '',
-                    f"{prefix}logo": f"/local/swemail/{provider}.png"
-                })
+                attributes.update(
+                    {
+                        f"{prefix}last_update": "",
+                        f"{prefix}postal_city": "",
+                        f"{prefix}next_delivery": "",
+                        f"{prefix}days_left": "",
+                        f"{prefix}logo": f"/local/swemail/{provider}.png",
+                    }
+                )
                 continue
-                
+
             provider_data = self.coordinator.data[provider]
             postal_data = provider_data.get(self.coordinator.postal_code, {})
-            
+
             try:
-                next_delivery = postal_data.get('next_delivery', '')
+                next_delivery = postal_data.get("next_delivery", "")
                 if next_delivery:
                     next_date = datetime.strptime(next_delivery, "%Y-%m-%d")
                     num_days = max(0, (next_date - datetime.now()).days + 1)
-                    
+
                     if best_date is None or next_date < best_date:
                         best_date = next_date
                         best_provider = provider
-                        
-                    attributes.update({
-                        f"{prefix}last_update": postal_data.get('last_update', ''),
-                        f"{prefix}postal_city": postal_data.get('postal_city', ''),
-                        f"{prefix}next_delivery": next_delivery,
-                        f"{prefix}days_left": num_days,
-                        f"{prefix}logo": f"/local/swemail/{provider}.png"
-                    })
+
+                    attributes.update(
+                        {
+                            f"{prefix}last_update": postal_data.get("last_update", ""),
+                            f"{prefix}postal_city": postal_data.get("postal_city", ""),
+                            f"{prefix}next_delivery": next_delivery,
+                            f"{prefix}days_left": num_days,
+                            f"{prefix}logo": f"/local/swemail/{provider}.png",
+                        }
+                    )
                 else:
-                    attributes.update({
-                        f"{prefix}last_update": '',
-                        f"{prefix}postal_city": '',
-                        f"{prefix}next_delivery": '',
-                        f"{prefix}days_left": '',
-                        f"{prefix}logo": f"/local/swemail/{provider}.png"
-                    })
+                    attributes.update(
+                        {
+                            f"{prefix}last_update": "",
+                            f"{prefix}postal_city": "",
+                            f"{prefix}next_delivery": "",
+                            f"{prefix}days_left": "",
+                            f"{prefix}logo": f"/local/swemail/{provider}.png",
+                        }
+                    )
             except (ValueError, KeyError):
-                attributes.update({
-                    f"{prefix}last_update": '',
-                    f"{prefix}postal_city": '',
-                    f"{prefix}next_delivery": '',
-                    f"{prefix}days_left": '',
-                    f"{prefix}logo": f"/local/swemail/{provider}.png"
-                })
-        
+                attributes.update(
+                    {
+                        f"{prefix}last_update": "",
+                        f"{prefix}postal_city": "",
+                        f"{prefix}next_delivery": "",
+                        f"{prefix}days_left": "",
+                        f"{prefix}logo": f"/local/swemail/{provider}.png",
+                    }
+                )
+
         # Add next delivery info (best/earliest)
         if best_provider:
-            attributes.update({
-                'next_provider': best_provider.capitalize(),
-                'next_logo': f"/local/swemail/{best_provider}.png",
-                'next_delivery': attributes[f"{best_provider}_next_delivery"],
-                'next_days_left': attributes[f"{best_provider}_days_left"]
-            })
+            attributes.update(
+                {
+                    "next_provider": best_provider.capitalize(),
+                    "next_logo": f"/local/swemail/{best_provider}.png",
+                    "next_delivery": attributes[f"{best_provider}_next_delivery"],
+                    "next_days_left": attributes[f"{best_provider}_days_left"],
+                }
+            )
         else:
-            attributes.update({
-                'next_provider': '',
-                'next_logo': '',
-                'next_delivery': '',
-                'next_days_left': ''
-            })
-            
+            attributes.update(
+                {
+                    "next_provider": "",
+                    "next_logo": "",
+                    "next_delivery": "",
+                    "next_days_left": "",
+                }
+            )
+
         return attributes
 
     @property
