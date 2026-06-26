@@ -141,7 +141,7 @@ class SweMailDeliveryOptionsFlow(config_entries.OptionsFlow):
             except Exception:
                 _LOGGER.warning(
                     "Could not fetch postal city from HttpWorker, using fallback."
-                )
+                    )
                 postalCity = "Postort"
             
             entryTitle = f"{postalCity} {postalcode}"
