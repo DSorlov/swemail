@@ -51,7 +51,9 @@ class SweMailDeliveryConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                 {
                     vol.Required(
                         CONF_POSTALCODE, default=user_input[CONF_POSTALCODE]
-                    ): vol.All(vol.Coerce(int), vol.Range(min=10000, max=99999)),
+                    ): vol.All(
+                        vol.Coerce(int), vol.Range(min=10000, max=99999)
+                    ),
                     vol.Optional(
                         CONF_PROVIDER_POSTNORD,
                         default=user_input[CONF_PROVIDER_POSTNORD],
@@ -83,8 +85,12 @@ class SweMailDeliveryConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                     title=entryTitle,
                     data={
                         CONF_POSTALCODE: postalcode,
-                        CONF_PROVIDER_POSTNORD: user_input[CONF_PROVIDER_POSTNORD],
-                        CONF_PROVIDER_CITYMAIL: user_input[CONF_PROVIDER_CITYMAIL],
+                        CONF_PROVIDER_POSTNORD: user_input[
+                            CONF_PROVIDER_POSTNORD
+                        ],
+                        CONF_PROVIDER_CITYMAIL: user_input[
+                            CONF_PROVIDER_CITYMAIL
+                        ],
                     },
                 )
             except Exception:
@@ -123,11 +129,15 @@ class SweMailDeliveryOptionsFlow(config_entries.OptionsFlow):
             {
                 vol.Optional(
                     CONF_PROVIDER_POSTNORD,
-                    default=self._config_entry.data.get(CONF_PROVIDER_POSTNORD),
+                    default=self._config_entry.data.get(
+                        CONF_PROVIDER_POSTNORD
+                    ),
                 ): bool,
                 vol.Optional(
                     CONF_PROVIDER_CITYMAIL,
-                    default=self._config_entry.data.get(CONF_PROVIDER_CITYMAIL),
+                    default=self._config_entry.data.get(
+                        CONF_PROVIDER_CITYMAIL
+                    ),
                 ): bool,
             }
         )
@@ -152,7 +162,11 @@ class SweMailDeliveryOptionsFlow(config_entries.OptionsFlow):
                 title=entryTitle,
                 data={
                     CONF_POSTALCODE: postalcode,
-                    CONF_PROVIDER_POSTNORD: user_input[CONF_PROVIDER_POSTNORD],
-                    CONF_PROVIDER_CITYMAIL: user_input[CONF_PROVIDER_CITYMAIL],
+                    CONF_PROVIDER_POSTNORD: user_input[
+                        CONF_PROVIDER_POSTNORD
+                    ],
+                    CONF_PROVIDER_CITYMAIL: user_input[
+                        CONF_PROVIDER_CITYMAIL
+                    ],
                 },
             )
