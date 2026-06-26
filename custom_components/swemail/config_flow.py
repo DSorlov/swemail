@@ -136,8 +136,12 @@ class SweMailDeliveryOptionsFlow(config_entries.OptionsFlow):
             return self.async_show_form(step_id="user", data_schema=data_schema)
         else:
             postalcode = self._config_entry.data[CONF_POSTALCODE]
-
-            postalCity = await HttpWorker().fetch_postal_city(postalcode)
+            try:
+                postalCity = await HttpWorker().fetch_postal_city(postalcode)
+            except Exception:
+                _LOGGER.warning("Could not fetch postal city from HttpWorker, using fallback.")
+                postalCity = "Postort"
+            
             entryTitle = f"{postalCity} {postalcode}"
 
             return self.async_create_entry(
