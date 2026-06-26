@@ -111,7 +111,8 @@ class HttpWorker:
                 # Fallback if the API returns an empty string or an alternative status text
                 if delivery_text:
                     _LOGGER.warning(
-                        "PostNord returned an unexpected or non-parseable format: '%s'",
+                        "PostNord returned an unexpected or "
+                        "non-parseable format: '%s'",
                         delivery_text,
                     )
                     formatted_date = delivery_text
@@ -138,7 +139,7 @@ class HttpWorker:
             _LOGGER.error(
                 "Process data failed (PN): %s",
                 error,
-                )
+            )
             self._data[CONF_PROVIDER_POSTNORD][postalcode] = {
                 "last_update": "",
                 "postal_city": "",
