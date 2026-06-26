@@ -20,7 +20,10 @@ class DeliveryDetails:
         self._next_delivery = next_delivery
 
     def __repr__(self):
-        return f"{self.__class__.__name__}(last_update: {self._last_update}, postal_city '{self._postal_city}', next_delivery: {self._next_delivery})"
+        return (
+            f"{self.__class__.__name__}(last_update: {self._last_update}, "
+            f"postal_city '{self._postal_city}', next_delivery: {self._next_delivery})"
+        )
 
     @property
     def last_update(self):
@@ -131,9 +134,13 @@ class HttpWorker:
             self._data[CONF_PROVIDER_POSTNORD][str(postalcode)] = payload
 
             if "postalCode" in data:
-                self._data[CONF_PROVIDER_POSTNORD][str(data["postalCode"])] = payload
+                self._data[CONF_PROVIDER_POSTNORD][str(data["postalCode"])] = (
+                    payload
+                )
                 if str(data["postalCode"]).isdigit():
-                    self._data[CONF_PROVIDER_POSTNORD][int(data["postalCode"])] = payload
+                    self._data[CONF_PROVIDER_POSTNORD][
+                        int(data["postalCode"])
+                    ] = payload
 
         except Exception as error:
             _LOGGER.error(
@@ -149,10 +156,14 @@ class HttpWorker:
     def _handle_cm_data(self, data: str, postalcode: int) -> None:
         """Handle CityMail data response."""
         try:
-            match = re.search(r"<h2>([0-9]{5}) (.*)<\/h2>[\w\W]*>(.*)<\/span>", data)
+            match = re.search(
+                r"<h2>([0-9]{5}) (.*)<\/h2>[\w\W]*>(.*)<\/span>", data
+            )
             if match:
                 self._data[CONF_PROVIDER_CITYMAIL][int(match.group(1))] = {
-                    "last_update": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+                    "last_update": datetime.now().strftime(
+                        "%Y-%m-%d %H:%M:%S"
+                    ),
                     "postal_city": html.unescape(match.group(2)).capitalize(),
                     "next_delivery": match.group(3),
                 }
