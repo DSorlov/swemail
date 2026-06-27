@@ -4,35 +4,6 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [2.0.0] (2025-10-02)
-Major architecture overhaul to completely modernize the integration
-Removing Clearbit dependency and improvements in blocking http io operations.
-
-### Added
-- New Language Support: Added translations for Danish (da), Norwegian (no), Finnish (fi), Spanish (es), Turkish (tr), Arabic (ar), and Ukrainian (uk)
-- Migration handling: Automatic upgrade from v1.x to v2.x with proper version tracking
-
-### Changed
-- Replaced requests with aiohttp - Eliminated blocking I/O operations
-- Improved device info - Better device registry integration
-- Enhanced attribute management - More efficient and reliable state updates
-- Better date handling - Fixed midnight edge case calculations
-- Concurrent API calls - All provider data fetched simultaneously for better performance
-
-### Fixed
-- Translation display: Removed device class override that caused "2d" format instead of "om två dagar"
-- Config flow deprecation: Updated options flow to use modern HomeAssistant 2025.12+ patterns
-- Upgrade compatibility: Added proper migration from v1.x installations
-
-### Removed
-- Clearbit API calls - no logo is available because it simply is not an asked for feature
-- Duration device class - Allows custom translations to work properly
-
-### Performance Improvements
-- Non-blocking operations - All network calls are now async
-- Reduced update frequency - Coordinator prevents redundant API calls
-- Better resource management - Proper session handling and cleanup
-
 ## [1.0.7] (2023-06-12)
 
 ### Fixes
