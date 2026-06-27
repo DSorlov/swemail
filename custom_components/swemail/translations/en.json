@@ -1,0 +1,59 @@
+{
+    "title": "Swedish Mail Delivery",
+    "config": {
+      "abort": {
+        "already_configured": "The entered postal code is already configured."
+      },
+      "error": {
+        "invalid_postcode": "The entered postal code is not valid",
+        "creation_error": "An error occured while creating configuration object"
+      },
+      "step": {
+        "user": {
+          "data": {
+            "postalcode": "Postal Code",
+            "postnord": "Enable Postnord check",
+            "citymail": "Enable Citymail check"
+          },
+          "title": "Swedish Mail Delivery"
+        }
+      }
+    },
+    "options": {
+      "abort": {
+        "already_configured": "The entered postal code is already configured."
+      },
+      "step": {
+        "user": {
+          "data": {
+            "postnord": "Enable Postnord check",
+            "citymail": "Enable Citymail check"
+          },
+          "title": "Swedish Mail Delivery"
+        }
+      }
+    },
+    "entity": {
+      "sensor": {
+        "maildaysleft": {
+          "state": {
+            "0": "Today",
+            "1": "Tomorrow",
+            "2": "In two days",
+            "3": "In three days",
+            "4": "In four days",
+            "5": "In five days",
+            "6": "In six days",
+            "7": "In a week",
+            "8": "In eight days",
+            "9": "In nine days",
+            "10": "In ten days",
+            "11": "In eleven days",
+            "12": "In twelve days",
+            "13": "In thirteen days",
+            "14": "In two weeks"
+          }
+        }
+      }
+    }
+  }
