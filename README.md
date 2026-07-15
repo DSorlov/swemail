@@ -1,6 +1,6 @@
 ![maintained](https://img.shields.io/maintenance/yes/2026.svg)
 [![hacs_badge](https://img.shields.io/badge/hacs-default-green.svg)](https://github.com/custom-components/hacs)
-[![ha_version](https://img.shields.io/badge/home%20assistant-2024.10%2B-green.svg)](https://www.home-assistant.io)
+[![ha_version](https://img.shields.io/badge/home%20assistant-2025.1%2B-green.svg)](https://www.home-assistant.io)
 ![version](https://img.shields.io/badge/version-2.1.0-green.svg)
 ![stability](https://img.shields.io/badge/stability-stable-green.svg)
 [![CI](https://github.com/DSorlov/swemail/workflows/CI/badge.svg)](https://github.com/DSorlov/swemail/actions/workflows/ci.yaml)
