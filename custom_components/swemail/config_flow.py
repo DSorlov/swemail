@@ -6,6 +6,7 @@ import voluptuous as vol
 from homeassistant import config_entries, exceptions
 from homeassistant.core import callback
 
+from .api import HttpWorker
 from .const import (
     CONF_EXTRA_SENSORS,
     CONF_POSTALCODE,
@@ -13,7 +14,6 @@ from .const import (
     CONF_PROVIDER_POSTNORD,
     DOMAIN,
 )
-from .api import HttpWorker
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -127,9 +127,7 @@ class SweMailDeliveryOptionsFlow(config_entries.OptionsFlow):
                 ): bool,
                 vol.Optional(
                     CONF_EXTRA_SENSORS,
-                    default=self.config_entry.options.get(
-                        CONF_EXTRA_SENSORS, False
-                    ),
+                    default=self.config_entry.options.get(CONF_EXTRA_SENSORS, False),
                 ): bool,
             }
         )
@@ -141,7 +139,9 @@ class SweMailDeliveryOptionsFlow(config_entries.OptionsFlow):
             try:
                 postalCity = await HttpWorker(self.hass).fetch_postal_city(postalcode)
             except Exception:
-                _LOGGER.warning("Could not fetch postal city from HttpWorker, using fallback.")
+                _LOGGER.warning(
+                    "Could not fetch postal city from HttpWorker, using fallback."
+                )
                 postalCity = "Postort"
 
             entryTitle = f"{postalCity} {postalcode}"

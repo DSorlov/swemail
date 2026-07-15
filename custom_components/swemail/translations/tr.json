@@ -56,5 +56,11 @@
           }
         }
       }
+    },
+    "device_automation": {
+      "trigger_type": {
+        "delivery_today": "Posta bugün teslim ediliyor",
+        "delivery_tomorrow": "Posta yarın teslim ediliyor"
+      }
     }
   }

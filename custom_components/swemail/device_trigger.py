@@ -72,9 +72,7 @@ async def async_attach_trigger(
         CONF_ENTITY_ID: [config[CONF_ENTITY_ID]],
         state_trigger.CONF_TO: "on",
     }
-    state_config = await state_trigger.async_validate_trigger_config(
-        hass, state_config
-    )
+    state_config = await state_trigger.async_validate_trigger_config(hass, state_config)
     return await state_trigger.async_attach_trigger(
         hass, state_config, action, trigger_info, platform_type="device"
     )

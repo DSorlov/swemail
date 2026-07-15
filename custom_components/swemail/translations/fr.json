@@ -56,5 +56,11 @@
           }
         }
       }
+    },
+    "device_automation": {
+      "trigger_type": {
+        "delivery_today": "Le courrier est distribué aujourd'hui",
+        "delivery_tomorrow": "Le courrier est distribué demain"
+      }
     }
   }

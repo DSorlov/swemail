@@ -7,12 +7,12 @@ from datetime import date, timedelta
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.update_coordinator import DataUpdateCoordinator, UpdateFailed
 
+from .api import HttpWorker
 from .const import (
     DOMAIN,
     EVENT_DELIVERY_TODAY,
     EVENT_NEXT_DELIVERY_CHANGED,
 )
-from .api import HttpWorker
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -81,4 +81,3 @@ class SweMailCoordinator(DataUpdateCoordinator):
                     )
 
             self._previous[provider] = next_delivery
-

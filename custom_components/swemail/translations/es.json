@@ -56,5 +56,11 @@
           }
         }
       }
+    },
+    "device_automation": {
+      "trigger_type": {
+        "delivery_today": "El correo se entrega hoy",
+        "delivery_tomorrow": "El correo se entrega mañana"
+      }
     }
   }

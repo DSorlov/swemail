@@ -56,5 +56,11 @@
           }
         }
       }
+    },
+    "device_automation": {
+      "trigger_type": {
+        "delivery_today": "Posten leveres i dag",
+        "delivery_tomorrow": "Posten leveres i morgen"
+      }
     }
   }

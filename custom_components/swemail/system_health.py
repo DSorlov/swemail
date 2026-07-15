@@ -27,8 +27,7 @@ async def system_health_info(hass: HomeAssistant):
         "Instances": len(coordinators),
         "Last update success": (
             all(
-                coordinator.last_update_success
-                for coordinator in coordinators.values()
+                coordinator.last_update_success for coordinator in coordinators.values()
             )
             if coordinators
             else False

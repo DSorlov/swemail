@@ -56,5 +56,11 @@
           }
         }
       }
+    },
+    "device_automation": {
+      "trigger_type": {
+        "delivery_today": "يتم تسليم البريد اليوم",
+        "delivery_tomorrow": "يتم تسليم البريد غدًا"
+      }
     }
   }

@@ -56,5 +56,11 @@
           }
         }
       }
+    },
+    "device_automation": {
+      "trigger_type": {
+        "delivery_today": "Posti toimitetaan tänään",
+        "delivery_tomorrow": "Posti toimitetaan huomenna"
+      }
     }
   }

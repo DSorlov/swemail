@@ -31,9 +31,7 @@ async def async_setup_entry(
 
     # Combined "any provider" sensors for today and tomorrow.
     entities.append(MailDeliveryBinarySensor(coordinator, None, 0, "delivery_today"))
-    entities.append(
-        MailDeliveryBinarySensor(coordinator, None, 1, "delivery_tomorrow")
-    )
+    entities.append(MailDeliveryBinarySensor(coordinator, None, 1, "delivery_tomorrow"))
 
     # Per-provider "delivery today" sensors.
     for provider in coordinator.providers:
@@ -49,7 +47,9 @@ class MailDeliveryBinarySensor(CoordinatorEntity, BinarySensorEntity):
 
     _attr_icon = "mdi:mailbox"
 
-    def __init__(self, coordinator, provider: Optional[str], days_offset: int, key: str):
+    def __init__(
+        self, coordinator, provider: Optional[str], days_offset: int, key: str
+    ):
         """Initialize the sensor."""
         super().__init__(coordinator)
         self._provider = provider

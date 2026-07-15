@@ -56,6 +56,12 @@
 }
 }
 }
+},
+"device_automation": {
+"trigger_type": {
+"delivery_today": "Pósturinn er afhentur í dag",
+"delivery_tomorrow": "Pósturinn er afhentur á morgun"
+}
 }
 }
 
