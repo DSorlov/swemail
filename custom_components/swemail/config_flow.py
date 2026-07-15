@@ -7,12 +7,13 @@ from homeassistant import config_entries, exceptions
 from homeassistant.core import callback
 
 from .const import (
+    CONF_EXTRA_SENSORS,
     CONF_POSTALCODE,
     CONF_PROVIDER_CITYMAIL,
     CONF_PROVIDER_POSTNORD,
     DOMAIN,
 )
-from .woker import HttpWorker
+from .api import HttpWorker
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -65,7 +66,7 @@ class SweMailDeliveryConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
 
             try:
                 postalcode = user_input[CONF_POSTALCODE]
-                postalCity = await HttpWorker().fetch_postal_city(postalcode)
+                postalCity = await HttpWorker(self.hass).fetch_postal_city(postalcode)
             except Exception:
                 return self.async_show_form(
                     step_id="user",
@@ -97,16 +98,11 @@ class SweMailDeliveryConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
     @staticmethod
     @callback
     def async_get_options_flow(config_entry):
-        return SweMailDeliveryOptionsFlow(config_entry)
+        return SweMailDeliveryOptionsFlow()
 
 
 class SweMailDeliveryOptionsFlow(config_entries.OptionsFlow):
-    """HASL config flow options handler."""
-
-    def __init__(self, config_entry):
-        """Initialize HASL options flow."""
-        super().__init__()
-        self._config_entry = config_entry
+    """Options flow handler."""
 
     async def async_step_init(self, user_input=None):
         """Manage the options."""
@@ -123,11 +119,17 @@ class SweMailDeliveryOptionsFlow(config_entries.OptionsFlow):
             {
                 vol.Optional(
                     CONF_PROVIDER_POSTNORD,
-                    default=self._config_entry.data.get(CONF_PROVIDER_POSTNORD),
+                    default=self.config_entry.data.get(CONF_PROVIDER_POSTNORD),
                 ): bool,
                 vol.Optional(
                     CONF_PROVIDER_CITYMAIL,
-                    default=self._config_entry.data.get(CONF_PROVIDER_CITYMAIL),
+                    default=self.config_entry.data.get(CONF_PROVIDER_CITYMAIL),
+                ): bool,
+                vol.Optional(
+                    CONF_EXTRA_SENSORS,
+                    default=self.config_entry.options.get(
+                        CONF_EXTRA_SENSORS, False
+                    ),
                 ): bool,
             }
         )
@@ -135,20 +137,20 @@ class SweMailDeliveryOptionsFlow(config_entries.OptionsFlow):
         if user_input is None:
             return self.async_show_form(step_id="user", data_schema=data_schema)
         else:
-            postalcode = self._config_entry.data[CONF_POSTALCODE]
+            postalcode = self.config_entry.data[CONF_POSTALCODE]
             try:
-                postalCity = await HttpWorker().fetch_postal_city(postalcode)
+                postalCity = await HttpWorker(self.hass).fetch_postal_city(postalcode)
             except Exception:
                 _LOGGER.warning("Could not fetch postal city from HttpWorker, using fallback.")
                 postalCity = "Postort"
-            
+
             entryTitle = f"{postalCity} {postalcode}"
 
             return self.async_create_entry(
                 title=entryTitle,
                 data={
-                    CONF_POSTALCODE: postalcode,
                     CONF_PROVIDER_POSTNORD: user_input[CONF_PROVIDER_POSTNORD],
                     CONF_PROVIDER_CITYMAIL: user_input[CONF_PROVIDER_CITYMAIL],
+                    CONF_EXTRA_SENSORS: user_input.get(CONF_EXTRA_SENSORS, False),
                 },
             )

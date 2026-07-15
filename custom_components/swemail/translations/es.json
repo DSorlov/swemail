@@ -27,7 +27,8 @@
         "user": {
           "data": {
             "postnord": "Habilitar verificación de Postnord",
-            "citymail": "Habilitar verificación de Citymail"
+            "citymail": "Habilitar verificación de Citymail",
+            "extra_sensors": "Crear sensores adicionales (próxima fecha de entrega y ciudad)"
           },
           "title": "Entrega de Correo Sueco"
         }

@@ -4,6 +4,34 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.1.0] (2026-07-15)
+Feature and bug fix release: automation-friendly entities and triggers plus fixes for sensors becoming unavailable and log spam.
+
+### Added
+- Binary sensors **Delivery Today** and **Delivery Tomorrow** (combined, plus per-provider "today"), so automations can trigger on a simple on/off state without templates.
+- **Calendar** entity exposing upcoming delivery days as all-day events, enabling Home Assistant calendar triggers (closes [#40](https://github.com/DSorlov/swemail/issues/40)).
+- **Device triggers**: pick the "Mail Delivery" device in the automation editor and choose *"Mail is delivered today/tomorrow"*.
+- **Events** fired by the coordinator: `swemail_delivery_today` and `swemail_next_delivery_changed` (with `postal_code`, `provider`, `next_delivery`).
+- **Automation blueprints** with one-click import links in the README for "notify when mail is delivered today" and "reminder the evening before".
+- New `upcoming_delivery` attribute exposing the delivery after the next one (from PostNord's `upcoming` field, which was previously discarded). On the combined sensor it is also available as `<provider>_upcoming_delivery` and `next_upcoming_delivery`. This is particularly useful for the "fasta dagar" pilot areas where it hints at the two fixed weekly days.
+- Diagnostics support: download redacted config entry and coordinator data from the integration's "Download diagnostics" button for easier troubleshooting.
+- Optional extra entities (opt-in via the integration options, off by default): when enabled, each provider also gets a first-class next delivery **date** sensor and a **postal city** sensor, grouped under the existing device. Existing entities are unchanged.
+
+### Fixed
+- PostNord sensors stuck as `unavailable` ([#42](https://github.com/DSorlov/swemail/issues/42)): delivery data was cached under a string postal code key while the sensor looked it up with an integer key, so the value was never found. Data is now consistently keyed on the integer postal code.
+- Log spam and `list index out of range` for areas without a scheduled date ([#38](https://github.com/DSorlov/swemail/issues/38), [#41](https://github.com/DSorlov/swemail/issues/41)): empty or unexpected PostNord `delivery` responses (e.g. the "fasta dagar" pilot) are now handled gracefully and logged at debug level instead of raising an error every update.
+- More robust CityMail parsing ([#42](https://github.com/DSorlov/swemail/issues/42)): the HTML scraping is resilient to whitespace/newlines and no longer silently retains stale data when a postal code is not covered.
+- Rewrote the broken system health page so it reports the active coordinators instead of referencing the removed v1 worker object.
+- Options flow now uses the modern `self.config_entry` pattern, removing the deprecated config entry handling.
+- Provider selection made in the options flow now actually takes effect (setup reads the merged config data and options).
+
+### Changed
+- Use the `Platform` enum for platform setup and cleaned up leftover copy-paste docstrings.
+- Reuse Home Assistant's shared aiohttp session (`async_get_clientsession`) instead of creating a new session on every API call.
+- Moved the data update coordinator into a dedicated `coordinator.py` module and reload the entry automatically when its options change.
+- Added `strings.json` as the translation source and regression tests (pytest) covering the PostNord key, empty/"N/A" delivery, and CityMail parsing.
+- Renamed the internal `woker` package to `api` (import paths updated; no user-facing change).
+
 ## [2.0.0] (2025-10-02)
 Major architecture overhaul to completely modernize the integration
 Removing Clearbit dependency and improvements in blocking http io operations.

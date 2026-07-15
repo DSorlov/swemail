@@ -1,8 +1,8 @@
 import logging
-from datetime import datetime
+from datetime import date, datetime
 from typing import Any, Dict, Optional
 
-from homeassistant.components.sensor import SensorEntity
+from homeassistant.components.sensor import SensorDeviceClass, SensorEntity
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.device_registry import DeviceEntryType
@@ -11,6 +11,7 @@ from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
 
 from .const import (
+    CONF_EXTRA_SENSORS,
     DEVICE_AUTHOR,
     DEVICE_NAME,
     DEVICE_VERSION,
@@ -38,6 +39,13 @@ async def async_setup_entry(
     # Add combined next delivery sensor if multiple providers are enabled
     if len(coordinator.providers) > 1:
         entities.append(NextMailDeliverySensor(coordinator))
+
+    # Optional extra first-class sensors (opt-in via options), one date and one
+    # city sensor per provider, grouped under the same device.
+    if config_entry.options.get(CONF_EXTRA_SENSORS, False):
+        for provider in coordinator.providers:
+            entities.append(NextDeliveryDateSensor(coordinator, provider))
+            entities.append(PostalCitySensor(coordinator, provider))
 
     async_add_entities(entities)
 
@@ -101,6 +109,7 @@ class ProviderMailDeliverySensor(CoordinatorEntity, SensorEntity):
                     "last_update": "",
                     "postal_city": "",
                     "next_delivery": "",
+                    "upcoming_delivery": "",
                     "days_left": "",
                 }
             )
@@ -114,6 +123,7 @@ class ProviderMailDeliverySensor(CoordinatorEntity, SensorEntity):
                 "last_update": postal_data.get("last_update", ""),
                 "postal_city": postal_data.get("postal_city", ""),
                 "next_delivery": postal_data.get("next_delivery", ""),
+                "upcoming_delivery": postal_data.get("upcoming_delivery", ""),
                 "days_left": self.native_value or "",
             }
         )
@@ -210,6 +220,7 @@ class NextMailDeliverySensor(CoordinatorEntity, SensorEntity):
                         f"{prefix}last_update": "",
                         f"{prefix}postal_city": "",
                         f"{prefix}next_delivery": "",
+                        f"{prefix}upcoming_delivery": "",
                         f"{prefix}days_left": "",
                     }
                 )
@@ -233,6 +244,9 @@ class NextMailDeliverySensor(CoordinatorEntity, SensorEntity):
                             f"{prefix}last_update": postal_data.get("last_update", ""),
                             f"{prefix}postal_city": postal_data.get("postal_city", ""),
                             f"{prefix}next_delivery": next_delivery,
+                            f"{prefix}upcoming_delivery": postal_data.get(
+                                "upcoming_delivery", ""
+                            ),
                             f"{prefix}days_left": num_days,
                         }
                     )
@@ -242,6 +256,7 @@ class NextMailDeliverySensor(CoordinatorEntity, SensorEntity):
                             f"{prefix}last_update": "",
                             f"{prefix}postal_city": "",
                             f"{prefix}next_delivery": "",
+                            f"{prefix}upcoming_delivery": "",
                             f"{prefix}days_left": "",
                         }
                     )
@@ -251,6 +266,7 @@ class NextMailDeliverySensor(CoordinatorEntity, SensorEntity):
                         f"{prefix}last_update": "",
                         f"{prefix}postal_city": "",
                         f"{prefix}next_delivery": "",
+                        f"{prefix}upcoming_delivery": "",
                         f"{prefix}days_left": "",
                     }
                 )
@@ -261,6 +277,9 @@ class NextMailDeliverySensor(CoordinatorEntity, SensorEntity):
                 {
                     "next_provider": best_provider.capitalize(),
                     "next_delivery": attributes[f"{best_provider}_next_delivery"],
+                    "next_upcoming_delivery": attributes[
+                        f"{best_provider}_upcoming_delivery"
+                    ],
                     "next_days_left": attributes[f"{best_provider}_days_left"],
                 }
             )
@@ -269,6 +288,7 @@ class NextMailDeliverySensor(CoordinatorEntity, SensorEntity):
                 {
                     "next_provider": "",
                     "next_delivery": "",
+                    "next_upcoming_delivery": "",
                     "next_days_left": "",
                 }
             )
@@ -284,3 +304,80 @@ class NextMailDeliverySensor(CoordinatorEntity, SensorEntity):
     def attribution(self) -> str:
         """Return the attribution."""
         return SENSOR_ATTRIB
+
+
+class _ProviderExtraSensor(CoordinatorEntity, SensorEntity):
+    """Base class for the optional per-provider extra sensors."""
+
+    def __init__(self, coordinator, provider: str):
+        """Initialize the sensor."""
+        super().__init__(coordinator)
+        self._provider = provider
+        self._attr_device_info = DeviceInfo(
+            identifiers={(DOMAIN, f"{DEVICE_NAME}_{coordinator.postal_code}")},
+            name=f"{DEVICE_NAME} {coordinator.postal_code}",
+            manufacturer=DEVICE_AUTHOR,
+            model=f"v{DEVICE_VERSION}",
+            entry_type=DeviceEntryType.SERVICE,
+        )
+
+    def _postal_data(self) -> Dict[str, Any]:
+        """Return this provider's data for the configured postal code."""
+        if not self.coordinator.data or self._provider not in self.coordinator.data:
+            return {}
+        provider_data = self.coordinator.data[self._provider]
+        return provider_data.get(self.coordinator.postal_code, {})
+
+    @property
+    def attribution(self) -> str:
+        """Return the attribution."""
+        return SENSOR_ATTRIB
+
+
+class NextDeliveryDateSensor(_ProviderExtraSensor):
+    """Sensor exposing the next delivery as an explicit date."""
+
+    _attr_icon = "mdi:calendar-clock"
+    _attr_device_class = SensorDeviceClass.DATE
+
+    def __init__(self, coordinator, provider: str):
+        """Initialize the sensor."""
+        super().__init__(coordinator, provider)
+        self._attr_unique_id = (
+            f"{DOMAIN}_{coordinator.postal_code}_{provider}_next_delivery"
+        )
+        self._attr_name = (
+            f"{provider.capitalize()} Next Delivery {coordinator.postal_code}"
+        )
+
+    @property
+    def native_value(self) -> Optional[date]:
+        """Return the next delivery date."""
+        next_delivery = self._postal_data().get("next_delivery")
+        if not next_delivery:
+            return None
+        try:
+            return datetime.strptime(next_delivery, "%Y-%m-%d").date()
+        except (ValueError, TypeError):
+            return None
+
+
+class PostalCitySensor(_ProviderExtraSensor):
+    """Sensor exposing the postal city for a provider."""
+
+    _attr_icon = "mdi:map-marker-outline"
+
+    def __init__(self, coordinator, provider: str):
+        """Initialize the sensor."""
+        super().__init__(coordinator, provider)
+        self._attr_unique_id = (
+            f"{DOMAIN}_{coordinator.postal_code}_{provider}_postal_city"
+        )
+        self._attr_name = (
+            f"{provider.capitalize()} Postal City {coordinator.postal_code}"
+        )
+
+    @property
+    def native_value(self) -> Optional[str]:
+        """Return the postal city."""
+        return self._postal_data().get("postal_city") or None

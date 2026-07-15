@@ -1,0 +1,42 @@
+blueprint:
+  name: Svensk Postutdelning – Påminnelse kvällen innan utdelning
+  description: >
+    Kör valfria åtgärder (t.ex. en påminnelse) vid en vald tidpunkt om posten
+    delas ut nästa dag. Använder binärsensorn "Mail Delivery Tomorrow".
+  domain: automation
+  source_url: https://github.com/dsorlov/swemail/blob/main/blueprints/automation/swemail/mail_delivery_tomorrow.yaml
+  input:
+    delivery_tomorrow_sensor:
+      name: Utdelningssensor (imorgon)
+      description: Välj binärsensorn "Mail Delivery Tomorrow" för ditt postnummer.
+      selector:
+        entity:
+          filter:
+            - integration: swemail
+              domain: binary_sensor
+    reminder_time:
+      name: Påminnelsetid
+      description: När på dagen påminnelsen ska köras.
+      default: "18:00:00"
+      selector:
+        time: {}
+    actions:
+      name: Åtgärder
+      description: Vad som ska hända om posten kommer imorgon.
+      selector:
+        action: {}
+
+mode: single
+
+trigger:
+  - platform: time
+    at: !input reminder_time
+
+condition:
+  - condition: state
+    entity_id: !input delivery_tomorrow_sensor
+    state: "on"
+
+action:
+  - choose: []
+    default: !input actions

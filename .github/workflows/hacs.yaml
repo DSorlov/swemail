@@ -41,7 +41,7 @@ jobs:
       - name: Validate Python syntax
         run: |
           python -m py_compile custom_components/swemail/*.py
-          python -m py_compile custom_components/swemail/woker/*.py
+          python -m py_compile custom_components/swemail/api/*.py
           
       - name: Check manifest.json
         run: |

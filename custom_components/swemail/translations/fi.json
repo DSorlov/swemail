@@ -27,7 +27,8 @@
         "user": {
           "data": {
             "postnord": "Ota käyttöön Postnord-tarkistus",
-            "citymail": "Ota käyttöön Citymail-tarkistus"
+            "citymail": "Ota käyttöön Citymail-tarkistus",
+            "extra_sensors": "Luo lisäsensorit (seuraava toimituspäivä ja kaupunki)"
           },
           "title": "Ruotsin Postin Jakelu"
         }

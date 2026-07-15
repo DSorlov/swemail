@@ -27,7 +27,8 @@
         "user": {
           "data": {
             "postnord": "تمكين فحص Postnord",
-            "citymail": "تمكين فحص Citymail"
+            "citymail": "تمكين فحص Citymail",
+            "extra_sensors": "إنشاء مستشعرات إضافية (تاريخ التسليم التالي والمدينة)"
           },
           "title": "تسليم البريد السويدي"
         }

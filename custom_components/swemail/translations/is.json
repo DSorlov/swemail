@@ -27,7 +27,8 @@
 "user": {
 "data": {
 "postnord": "Virkja Postnord athugun",
-"citymail": "Virkja Citymail athugun"
+"citymail": "Virkja Citymail athugun",
+"extra_sensors": "Búa til auka skynjara (næsti afhendingardagur og staður)"
 },
 "title": "Sænsk póstþjónusta"
 }

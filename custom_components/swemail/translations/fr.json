@@ -27,7 +27,8 @@
         "user": {
           "data": {
             "postnord": "Activer le contrôle chez Postnord",
-            "citymail": "Activer le contrôle chez Citymail"
+            "citymail": "Activer le contrôle chez Citymail",
+            "extra_sensors": "Créer des capteurs supplémentaires (prochaine date de livraison et ville)"
           },
           "title": "Livraison de la poste suédoise"
         }

@@ -27,7 +27,8 @@
         "user": {
           "data": {
             "postnord": "Postnord kontrolünü etkinleştir",
-            "citymail": "Citymail kontrolünü etkinleştir"
+            "citymail": "Citymail kontrolünü etkinleştir",
+            "extra_sensors": "Ek sensörler oluştur (sonraki teslimat tarihi ve şehir)"
           },
           "title": "İsveç Posta Dağıtımı"
         }

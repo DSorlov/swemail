@@ -62,12 +62,16 @@ jobs:
       - name: Validate Python files
         run: |
           python -m py_compile custom_components/swemail/*.py
-          python -m py_compile custom_components/swemail/woker/*.py
+          python -m py_compile custom_components/swemail/api/*.py
           
       - name: Check imports
         run: |
           python -c "from custom_components.swemail import DOMAIN"
           python -c "from custom_components.swemail.const import DOMAIN, CONF_POSTALCODE"
+
+      - name: Run tests
+        run: |
+          pytest tests/ -q
           
   validate-translations:
     name: Validate Translations

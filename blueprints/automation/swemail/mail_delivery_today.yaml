@@ -1,0 +1,33 @@
+blueprint:
+  name: Svensk Postutdelning – Notis när posten kommer idag
+  description: >
+    Kör valfria åtgärder (t.ex. skicka en notis eller spela upp ett TTS-meddelande)
+    när binärsensorn "Mail Delivery Today" slår om till på – alltså när posten
+    delas ut idag för det valda postnumret.
+  domain: automation
+  source_url: https://github.com/dsorlov/swemail/blob/main/blueprints/automation/swemail/mail_delivery_today.yaml
+  input:
+    delivery_sensor:
+      name: Utdelningssensor (idag)
+      description: Välj binärsensorn "Mail Delivery Today" för ditt postnummer.
+      selector:
+        entity:
+          filter:
+            - integration: swemail
+              domain: binary_sensor
+    actions:
+      name: Åtgärder
+      description: Vad som ska hända när posten kommer idag.
+      selector:
+        action: {}
+
+mode: single
+
+trigger:
+  - platform: state
+    entity_id: !input delivery_sensor
+    to: "on"
+
+action:
+  - choose: []
+    default: !input actions

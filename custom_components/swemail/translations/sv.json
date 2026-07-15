@@ -27,7 +27,8 @@
         "user": {
           "data": {
             "postnord": "Aktivera kontroll hos Postnord",
-            "citymail": "Aktivera kontroll hos Citymail"
+            "citymail": "Aktivera kontroll hos Citymail",
+            "extra_sensors": "Skapa extra sensorer (nästa utdelningsdatum och ort)"
           },
           "title": "Svensk Postutdelning"
         }
@@ -54,6 +55,12 @@
             "14": "Om två veckor"
           }
         }
+      }
+    },
+    "device_automation": {
+      "trigger_type": {
+        "delivery_today": "Posten delas ut idag",
+        "delivery_tomorrow": "Posten delas ut imorgon"
       }
     }
   }

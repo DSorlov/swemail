@@ -1,59 +1,25 @@
 """Swedish Mail Delivery Integration."""
 
-import asyncio
 import logging
-import os
-from datetime import timedelta
 
-import voluptuous as vol
 from homeassistant.config_entries import ConfigEntry
-from homeassistant.core import HomeAssistant, callback
-from homeassistant.exceptions import ConfigEntryNotReady
+from homeassistant.const import Platform
+from homeassistant.core import HomeAssistant
 from homeassistant.helpers import config_validation as cv
-from homeassistant.helpers.update_coordinator import DataUpdateCoordinator, UpdateFailed
 
 from .const import CONF_POSTALCODE, CONF_PROVIDERS, DOMAIN
-from .woker import HttpWorker
+from .coordinator import SweMailCoordinator
 
 _LOGGER = logging.getLogger(__name__)
 
 # Configuration schema - integration can only be set up via config entries
 CONFIG_SCHEMA = cv.config_entry_only_config_schema(DOMAIN)
 
-PLATFORMS = ["sensor"]
-
-
-class SweMailCoordinator(DataUpdateCoordinator):
-    """Data coordinator for Swedish Mail delivery."""
-
-    def __init__(self, hass: HomeAssistant, postal_code: int, providers: list):
-        """Initialize coordinator."""
-        super().__init__(
-            hass,
-            _LOGGER,
-            name=DOMAIN,
-            update_interval=timedelta(hours=1),
-        )
-        self.postal_code = postal_code
-        self.providers = providers
-        self.worker = HttpWorker()
-
-    async def _async_update_data(self):
-        """Fetch data from API endpoints."""
-        try:
-            # Fetch data for all enabled providers concurrently
-            tasks = []
-            for provider in self.providers:
-                tasks.append(self.worker.fetch_async(self.postal_code, provider))
-
-            await asyncio.gather(*tasks)
-            return self.worker.data
-        except Exception as err:
-            raise UpdateFailed(f"Error communicating with API: {err}") from err
+PLATFORMS = [Platform.BINARY_SENSOR, Platform.CALENDAR, Platform.SENSOR]
 
 
 async def async_setup(hass, config):
-    """Set up HASL integration"""
+    """Set up the Swedish Mail Delivery integration."""
 
     # SERVICE FUNCTIONS
     async def fetch_data(call):
@@ -72,9 +38,8 @@ async def async_migrate_entry(hass, config_entry: ConfigEntry):
 
 
 async def reload_entry(hass, entry):
-    """Reload HASL."""
-    await async_unload_entry(hass, entry)
-    await async_setup_entry(hass, entry)
+    """Reload the config entry when its options change."""
+    await hass.config_entries.async_reload(entry.entry_id)
 
 
 async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
@@ -86,8 +51,11 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
         hass.config_entries.async_update_entry(entry, version=2)
 
     postal_code = entry.data[CONF_POSTALCODE]
+    # Options (when set) override the initial config data so provider changes
+    # made via the options flow actually take effect after a reload.
+    settings = {**entry.data, **entry.options}
     enabled_providers = [
-        provider for provider in CONF_PROVIDERS if entry.data.get(provider, False)
+        provider for provider in CONF_PROVIDERS if settings.get(provider, False)
     ]
 
     # Create coordinator
@@ -101,6 +69,9 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     await coordinator.async_config_entry_first_refresh()
 
     await hass.config_entries.async_forward_entry_setups(entry, PLATFORMS)
+
+    # Reload the entry when its options change (e.g. extra sensors toggle).
+    entry.async_on_unload(entry.add_update_listener(reload_entry))
 
     return True
 

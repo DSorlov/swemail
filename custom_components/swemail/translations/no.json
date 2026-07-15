@@ -27,7 +27,8 @@
         "user": {
           "data": {
             "postnord": "Aktivér Postnord-sjekk",
-            "citymail": "Aktivér Citymail-sjekk"
+            "citymail": "Aktivér Citymail-sjekk",
+            "extra_sensors": "Opprett ekstra sensorer (neste leveringsdato og sted)"
           },
           "title": "Svensk Postlevering"
         }

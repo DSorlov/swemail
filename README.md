@@ -1,7 +1,7 @@
-![maintained](https://img.shields.io/maintenance/yes/2025.svg)
+![maintained](https://img.shields.io/maintenance/yes/2026.svg)
 [![hacs_badge](https://img.shields.io/badge/hacs-default-green.svg)](https://github.com/custom-components/hacs)
 [![ha_version](https://img.shields.io/badge/home%20assistant-2024.10%2B-green.svg)](https://www.home-assistant.io)
-![version](https://img.shields.io/badge/version-2.0.0-green.svg)
+![version](https://img.shields.io/badge/version-2.1.0-green.svg)
 ![stability](https://img.shields.io/badge/stability-stable-green.svg)
 [![CI](https://github.com/DSorlov/swemail/workflows/CI/badge.svg)](https://github.com/DSorlov/swemail/actions/workflows/ci.yaml)
 [![hassfest](https://github.com/DSorlov/swemail/workflows/Validate%20with%20hassfest/badge.svg)](https://github.com/DSorlov/swemail/actions/workflows/hassfest.yaml)
@@ -55,6 +55,36 @@ I have tried to use machine translation to create a few useable translations. Pl
 - :saudi_arabia: Arabic (ar.json) - العربية
 - :ukraine: Ukrainian (uk.json) - Українська
 - :fr: French (fr.json) - Français
+
+## Entities
+
+For each configured postal code a device is created with:
+
+- **Days until delivery** sensor(s) – number of days until the next delivery (per provider, plus a combined sensor when several providers are enabled).
+- **Delivery today / tomorrow** binary sensors – `on` when mail is delivered that day. Great for automations.
+- **Delivery calendar** – upcoming delivery days as all-day calendar events (works with Home Assistant calendar triggers).
+- Optional (opt-in via the integration options): a **next delivery date** sensor and a **postal city** sensor per provider.
+
+Attributes on the days sensors include `next_delivery`, `upcoming_delivery`, `postal_city` and `last_update`.
+
+## Automations
+
+### Blueprints (one-click import)
+
+[![Open your Home Assistant instance and show the blueprint import dialog with a specific blueprint pre-filled.](https://my.home-assistant.io/badges/blueprint_import.svg)](https://my.home-assistant.io/redirect/blueprint_import/?blueprint_url=https%3A%2F%2Fgithub.com%2Fdsorlov%2Fswemail%2Fblob%2Fmain%2Fblueprints%2Fautomation%2Fswemail%2Fmail_delivery_today.yaml) **Notify when mail is delivered today**
+
+[![Open your Home Assistant instance and show the blueprint import dialog with a specific blueprint pre-filled.](https://my.home-assistant.io/badges/blueprint_import.svg)](https://my.home-assistant.io/redirect/blueprint_import/?blueprint_url=https%3A%2F%2Fgithub.com%2Fdsorlov%2Fswemail%2Fblob%2Fmain%2Fblueprints%2Fautomation%2Fswemail%2Fmail_delivery_tomorrow.yaml) **Reminder the evening before a delivery day**
+
+### Device triggers
+
+When creating an automation, pick the "Mail Delivery" device and choose a trigger such as *"Mail is delivered today"* or *"Mail is delivered tomorrow"* — no templates required.
+
+### Events
+
+The integration fires the following events you can trigger on:
+
+- `swemail_delivery_today` – fired when the next delivery becomes today. Data: `postal_code`, `provider`, `next_delivery`.
+- `swemail_next_delivery_changed` – fired when the next delivery date changes. Data: `postal_code`, `provider`, `next_delivery`, `previous`.
 
 ## Contributing
 

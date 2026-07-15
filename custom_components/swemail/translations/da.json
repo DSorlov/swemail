@@ -27,7 +27,8 @@
         "user": {
           "data": {
             "postnord": "Aktivér Postnord-kontrol",
-            "citymail": "Aktivér Citymail-kontrol"
+            "citymail": "Aktivér Citymail-kontrol",
+            "extra_sensors": "Opret ekstra sensorer (næste leveringsdato og by)"
           },
           "title": "Svensk Postleverance"
         }
