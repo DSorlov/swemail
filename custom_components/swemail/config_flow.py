@@ -25,7 +25,7 @@ class InvalidPostalCode(exceptions.HomeAssistantError):
 class SweMailDeliveryConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
     """Component config flow."""
 
-    VERSION = 1
+    VERSION = 2
 
     # FIXME: DOES NOT ACTUALLY VALIDATE ANYTHING! WE NEED THIS! =)
     async def validate_input(self, data):
