@@ -4,6 +4,12 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.1.1] (2026-07-16)
+Bug fix release: resolves a migration error on upgrade to 2.1.0.
+
+### Fixed
+- Migration error on upgrade ([#47](https://github.com/DSorlov/swemail/issues/47)): users upgrading from a pre-2.1.0 installation saw *"Config entry has version 2 which is higher than the current version 1"* because `ConfigFlow.VERSION` was still set to `1` while the v2.0.0 migration had already stored entries at version `2`. Fixed by setting `ConfigFlow.VERSION = 2` and moving the v1→v2 upgrade into the proper `async_migrate_entry` hook (removing the ad-hoc inline migration from `async_setup_entry`).
+
 ## [2.1.0] (2026-07-15)
 Feature and bug fix release: automation-friendly entities and triggers plus fixes for sensors becoming unavailable and log spam.
 
